@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import {
   IconeEstetoscopio,
   IconeSeringa,
   IconePata,
   IconeAgenda,
 } from "@/components/ilustracoes/icones";
+
+export const metadata: Metadata = {
+  title: "Serviços",
+  description:
+    "Consulta clínica geral, vacinação, check-up de rotina e pequenos procedimentos para cães e gatos, com atendimento veterinário domiciliar no Rio de Janeiro.",
+};
 
 const servicos = [
   {
@@ -32,17 +39,17 @@ const servicos = [
   },
 ];
 
-export function SecaoServicos() {
+export default function PaginaServicos() {
   return (
-    <section id="servicos" className="bg-creme-200 py-20 sm:py-28">
+    <section className="bg-creme-200 py-16 sm:py-24">
       <div className="mx-auto max-w-conteudo px-5 sm:px-8">
         <div className="max-w-2xl">
           <p className="font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">
             Serviços
           </p>
-          <h2 className="mt-4 font-titulo text-titulo-md text-verde-900">
+          <h1 className="mt-4 font-titulo text-titulo-md text-verde-900">
             O que a Dra. Rafaela leva até você
-          </h2>
+          </h1>
           <p className="mt-4 font-corpo text-lg leading-relaxed text-verde-700">
             Cuidado clínico de cães e gatos, feito no ritmo do seu pet. Casos que
             exijam estrutura hospitalar são encaminhados com orientação.
@@ -58,9 +65,9 @@ export function SecaoServicos() {
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-verde-100 text-verde-600 transition-colors group-hover:bg-verde-300 group-hover:text-verde-900">
                 <Icone />
               </span>
-              <h3 className="mt-5 font-titulo text-xl text-verde-900">
+              <h2 className="mt-5 font-titulo text-xl text-verde-900">
                 {titulo}
-              </h3>
+              </h2>
               <p className="mt-2 font-corpo text-sm leading-relaxed text-verde-700">
                 {descricao}
               </p>

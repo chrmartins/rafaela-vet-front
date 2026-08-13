@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 
+import { Cabecalho } from "@/components/cabecalho/cabecalho";
+import { Rodape } from "@/components/rodape/rodape";
+
 // Fontes self-hosted via @fontsource (sem next/font/google — melhor p/ LGPD e performance).
 // Subset latino apenas, pesos usados no design.
 import "@fontsource/fraunces/latin-400.css";
@@ -19,7 +22,10 @@ const descricaoSite =
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rafaelasoares.vet"),
-  title: tituloSite,
+  title: {
+    default: tituloSite,
+    template: "%s · Dra. Rafaela Soares",
+  },
   description: descricaoSite,
   keywords: [
     "veterinária domiciliar",
@@ -58,7 +64,13 @@ export default function LayoutRaiz({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="font-corpo antialiased">{children}</body>
+      <body className="font-corpo antialiased">
+        <Cabecalho />
+        {/* pt-20 = altura do header fixo (h-20), garante que o conteúdo de
+            toda página comece visível abaixo dele */}
+        <main className="pt-20">{children}</main>
+        <Rodape />
+      </body>
     </html>
   );
 }

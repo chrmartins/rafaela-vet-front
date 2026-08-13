@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Botao } from "@/components/ui/botao";
-import { Marca } from "@/components/layout/marca";
+import { Marca } from "@/components/marca/marca";
 import { useMenuMobile } from "@/store/use-menu-mobile";
 import { cn } from "@/lib/cn";
 
 const itensNavegacao = [
-  { rotulo: "Sobre", ancora: "#sobre" },
-  { rotulo: "Serviços", ancora: "#servicos" },
-  { rotulo: "Área de atendimento", ancora: "#area-atendimento" },
-  { rotulo: "Contato", ancora: "#contato" },
+  { rotulo: "Sobre", rota: "/sobre" },
+  { rotulo: "Serviços", rota: "/servicos" },
+  { rotulo: "Área de atendimento", rota: "/area-atendimento" },
+  { rotulo: "Contato", rota: "/contato" },
 ] as const;
 
 export function Cabecalho() {
   const { aberto, alternar, fechar } = useMenuMobile();
   const [rolou, setRolou] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     function aoRolar() {
@@ -35,6 +38,11 @@ export function Cabecalho() {
     };
   }, [aberto]);
 
+  // Fecha o menu mobile sempre que a rota muda
+  useEffect(() => {
+    fechar();
+  }, [pathname, fechar]);
+
   return (
     <header
       className={cn(
@@ -49,30 +57,37 @@ export function Cabecalho() {
       )}
     >
       <div className="mx-auto flex h-20 max-w-conteudo items-center justify-between px-5 sm:px-8">
-        <a
-          href="#inicio"
+        <Link
+          href="/"
           className="rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-verde-600"
           aria-label="Dra. Rafaela Soares — início"
         >
           <Marca />
-        </a>
+        </Link>
 
         {/* Navegação desktop */}
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Principal">
-          {itensNavegacao.map((item) => (
-            <a
-              key={item.ancora}
-              href={item.ancora}
-              className="rounded font-corpo text-sm text-verde-700 transition-colors hover:text-verde-600"
-            >
-              {item.rotulo}
-            </a>
-          ))}
+          {itensNavegacao.map((item) => {
+            const ativo = pathname === item.rota;
+            return (
+              <Link
+                key={item.rota}
+                href={item.rota}
+                aria-current={ativo ? "page" : undefined}
+                className={cn(
+                  "rounded font-corpo text-sm transition-colors hover:text-verde-600",
+                  ativo ? "font-semibold text-verde-900" : "text-verde-700",
+                )}
+              >
+                {item.rotulo}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden lg:block">
           <Botao comoFilho>
-            <a href="#contato">Agendar visita</a>
+            <Link href="/contato">Agendar visita</Link>
           </Botao>
         </div>
 
@@ -104,20 +119,24 @@ export function Cabecalho() {
               className="mx-auto flex max-w-conteudo flex-col gap-1 px-5 py-4 sm:px-8"
               aria-label="Principal (mobile)"
             >
-              {itensNavegacao.map((item) => (
-                <a
-                  key={item.ancora}
-                  href={item.ancora}
-                  onClick={fechar}
-                  className="rounded-lg px-3 py-3 font-corpo text-base text-verde-800 transition-colors hover:bg-verde-100"
-                >
-                  {item.rotulo}
-                </a>
-              ))}
+              {itensNavegacao.map((item) => {
+                const ativo = pathname === item.rota;
+                return (
+                  <Link
+                    key={item.rota}
+                    href={item.rota}
+                    aria-current={ativo ? "page" : undefined}
+                    className={cn(
+                      "rounded-lg px-3 py-3 font-corpo text-base transition-colors hover:bg-verde-100",
+                      ativo ? "font-semibold text-verde-900" : "text-verde-800",
+                    )}
+                  >
+                    {item.rotulo}
+                  </Link>
+                );
+              })}
               <Botao comoFilho className="mt-3 w-full">
-                <a href="#contato" onClick={fechar}>
-                  Agendar visita
-                </a>
+                <Link href="/contato">Agendar visita</Link>
               </Botao>
             </nav>
           </motion.div>

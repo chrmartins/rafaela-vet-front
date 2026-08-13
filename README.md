@@ -1,7 +1,8 @@
 # Site institucional — Dra. Rafaela Soares
 
-Home do site institucional da Dra. Rafaela Soares, médica-veterinária com
-atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de Janeiro.
+Site institucional (multipágina) da Dra. Rafaela Soares, médica-veterinária
+com atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de
+Janeiro.
 
 Stack: **Next.js 14 (App Router)** · TypeScript · Tailwind CSS · shadcn/ui
 (padrão `cva` + Radix `Slot`) · Zod + React Hook Form · Zustand · Framer Motion.
@@ -17,36 +18,62 @@ npm run build   # build de produção
 npm run lint    # ESLint
 ```
 
+## Rotas
+
+| URL                 | Página                        |
+|----------------------|-------------------------------|
+| `/`                  | Home (Hero + CTAs)            |
+| `/sobre`             | Sobre a Dra. Rafaela          |
+| `/servicos`          | Serviços                      |
+| `/area-atendimento`  | Área de atendimento (RJ)      |
+| `/contato`           | Contato (formulário)          |
+
+Cada rota tem `metadata` própria (title/description) para SEO por página.
+Cabeçalho e rodapé são renderizados uma vez em `app/layout.tsx` e persistem
+entre as rotas.
+
 ## Estrutura
 
 ```
-app/                     rotas (App Router), layout, metadata/SEO, globals.css
+app/
+  layout.tsx                 layout raiz (fontes, metadata base, Cabecalho+Rodape)
+  page.tsx                    /
+  sobre/page.tsx               /sobre
+  servicos/page.tsx            /servicos
+  area-atendimento/page.tsx    /area-atendimento
+  contato/
+    page.tsx                   /contato (Server — metadata + conteúdo estático)
+    formulario-contato.tsx      Client — formulário interativo desta rota
+  globals.css
 components/
   ui/                    primitivos (botao, campo-texto, area-texto, rotulo)
-  layout/                cabecalho, rodape, marca
-  secoes/                uma seção da Home por arquivo (prefixo Secao*)
+  cabecalho/cabecalho.tsx, rodape/rodape.tsx, marca/marca.tsx
+                         pasta-por-componente; usados em toda página, via app/layout.tsx
   ilustracoes/           SVGs próprios (ilustracao-cao-gato, icones)
 store/                   estado global Zustand (use-menu-mobile)
 schema/                  schemas Zod (esquema-contato → DadosContato)
 lib/                     utilitários (cn, contato)
 ```
 
-Convenções de nomenclatura seguem `../padrao-nomenclatura.md` (seção 10):
-pastas de topo em inglês; arquivos/componentes/funções em português; seções com
-prefixo `Secao`, hooks/stores com prefixo `use`, handlers com prefixo `ao`,
-schemas Zod `esquema*`/`Dados*`, props `Propriedades*`.
+Não há camada `components/secoes/`: o conteúdo de cada página fica direto no
+`page.tsx` da rota. Quando uma página precisa de interatividade (hooks,
+`"use client"`) mas também exporta `metadata` (só permitido em Server
+Component), só a parte interativa é extraída — colocada dentro da própria
+pasta da rota, não em `components/`. Ver `CLAUDE.md` deste repo para o
+racional completo e as convenções de nomenclatura.
 
 ## Formulário de contato
 
-O formulário (`components/secoes/secao-contato.tsx`) valida com Zod e, ao enviar,
-monta a mensagem e abre o **WhatsApp** (`wa.me`). Ainda **não há backend**. O
-ponto exato de integração com a futura API de Agendamento está marcado por
-comentário dentro de `aoEnviarFormulario`.
+O formulário (`app/contato/formulario-contato.tsx`) valida com Zod e, ao
+enviar, monta a mensagem e abre o **WhatsApp** (`wa.me`). Ainda **não há
+backend**. O ponto exato de integração com a futura API de Agendamento está
+marcado por comentário dentro de `aoEnviarFormulario`.
 
 ## Acessibilidade e qualidade
 
 - Responsivo de 320px a desktop, sem overflow horizontal.
-- Header fixo com `scroll-margin-top` nas seções (âncoras não ficam cobertas).
+- Header fixo: `<main>` do layout raiz tem `pt-20` (altura do header) para o
+  conteúdo de cada página começar visível abaixo dele.
 - Inputs com fonte 16px (evita zoom automático no iOS Safari).
 - Foco visível por teclado; `prefers-reduced-motion` respeitado (inclusive na
   animação de traço da Hero).

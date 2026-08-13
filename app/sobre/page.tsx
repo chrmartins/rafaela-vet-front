@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import {
   IconeCasa,
   IconeCoracao,
   IconeRelogio,
 } from "@/components/ilustracoes/icones";
+
+export const metadata: Metadata = {
+  title: "Sobre",
+  description:
+    "Conheça a Dra. Rafaela Soares, médica-veterinária (CRMV-RJ) dedicada à clínica geral de cães e gatos com atendimento domiciliar no Rio de Janeiro.",
+};
 
 const diferenciais = [
   {
@@ -25,18 +32,18 @@ const diferenciais = [
   },
 ];
 
-export function SecaoSobre() {
+export default function PaginaSobre() {
   return (
-    <section id="sobre" className="bg-creme py-20 sm:py-28">
+    <section className="bg-creme py-16 sm:py-24">
       <div className="mx-auto max-w-conteudo px-5 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div>
             <p className="font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">
               Sobre
             </p>
-            <h2 className="mt-4 font-titulo text-titulo-md text-verde-900">
+            <h1 className="mt-4 font-titulo text-titulo-md text-verde-900">
               Prazer, sou a Dra. Rafaela Soares
-            </h2>
+            </h1>
             <p className="mt-6 font-corpo text-lg leading-relaxed text-verde-700">
               Médica veterinária inscrita no{" "}
               <strong className="font-semibold text-verde-800">CRMV-RJ</strong>,
@@ -60,9 +67,9 @@ export function SecaoSobre() {
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-verde-100 text-verde-600">
                   <Icone />
                 </span>
-                <h3 className="mt-4 font-titulo text-lg text-verde-900">
+                <h2 className="mt-4 font-titulo text-lg text-verde-900">
                   {titulo}
-                </h3>
+                </h2>
                 <p className="mt-2 font-corpo text-sm leading-relaxed text-verde-700">
                   {descricao}
                 </p>

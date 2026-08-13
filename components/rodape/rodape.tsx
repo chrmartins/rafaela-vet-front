@@ -1,10 +1,18 @@
-import { Marca } from "@/components/layout/marca";
+import Link from "next/link";
+import { Marca } from "@/components/marca/marca";
 import {
   IconeWhatsapp,
   IconeInstagram,
   IconeMapa,
 } from "@/components/ilustracoes/icones";
 import { contato, montarLinkWhatsapp } from "@/lib/contato";
+
+const linksNavegacao = [
+  { rotulo: "Sobre", rota: "/sobre" },
+  { rotulo: "Serviços", rota: "/servicos" },
+  { rotulo: "Área de atendimento", rota: "/area-atendimento" },
+  { rotulo: "Contato", rota: "/contato" },
+] as const;
 
 export function Rodape() {
   const anoAtual = new Date().getFullYear();
@@ -22,6 +30,24 @@ export function Rodape() {
               Atendimento veterinário domiciliar para cães e gatos, com calma e
               atenção, no conforto da sua casa.
             </p>
+          </div>
+
+          <div>
+            <h2 className="font-corpo text-sm font-semibold uppercase tracking-[0.14em] text-verde-500">
+              Navegação
+            </h2>
+            <ul className="mt-4 flex flex-col gap-3 font-corpo text-sm text-verde-800">
+              {linksNavegacao.map((item) => (
+                <li key={item.rota}>
+                  <Link
+                    href={item.rota}
+                    className="transition-colors hover:text-verde-600"
+                  >
+                    {item.rotulo}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div>
