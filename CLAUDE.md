@@ -5,8 +5,9 @@ com atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de
 Janeiro. É o próprio repo que sobe na Vercel (app na raiz, sem monorepo).
 
 **Escopo deste repo — não é só o site público.** Hoje ele só tem a landing
-page pública (rotas `/`, `/sobre`, `/servicos`, `/area-atendimento`,
-`/contato`), mas vai crescer para incluir, **dentro do mesmo repo**, uma
+page pública (rotas `/`, `/sobre`, `/servicos`, `/contato` — Área de
+Atendimento não é mais rota própria, virou uma seção dentro de `/servicos`),
+mas vai crescer para incluir, **dentro do mesmo repo**, uma
 **área administrativa** com cadastro de tutores/animais, administração de
 consultas e prontuários. Não existe (e não está planejada) uma área de
 tutor separada — tudo fica na área administrativa deste `rafaela-vet-front`.
@@ -95,8 +96,7 @@ app/
                              (title.template), Cabecalho + <main pt-20> + Rodape
   page.tsx                   /                  (Hero + CTAs)
   sobre/page.tsx              /sobre
-  servicos/page.tsx           /servicos
-  area-atendimento/page.tsx   /area-atendimento
+  servicos/page.tsx           /servicos (inclui a seção Área de Atendimento)
   contato/
     page.tsx                  /contato (Server — metadata + conteúdo estático)
     formulario-contato.tsx     Client — só o <form> interativo, colocado aqui

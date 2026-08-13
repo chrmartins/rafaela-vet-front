@@ -20,13 +20,14 @@ npm run lint    # ESLint (eslint.config.mjs, flat config)
 
 ## Rotas
 
-| URL                 | Página                        |
-|----------------------|-------------------------------|
-| `/`                  | Home (Hero + CTAs)            |
-| `/sobre`             | Sobre a Dra. Rafaela          |
-| `/servicos`          | Serviços                      |
-| `/area-atendimento`  | Área de atendimento (RJ)      |
-| `/contato`           | Contato (formulário)          |
+| URL                 | Página                                          |
+|----------------------|--------------------------------------------------|
+| `/`                  | Home (Hero + CTAs)                              |
+| `/sobre`             | Sobre a Dra. Rafaela                            |
+| `/servicos`          | Serviços + Área de atendimento (RJ)             |
+| `/contato`           | Contato (formulário)                            |
+
+Menu do header/footer lista as 4: Home, Sobre, Serviços, Contato.
 
 Cada rota tem `metadata` própria (title/description) para SEO por página.
 Cabeçalho e rodapé são renderizados uma vez em `app/layout.tsx` e persistem
@@ -39,8 +40,7 @@ app/
   layout.tsx                 layout raiz (fontes, metadata base, Cabecalho+Rodape)
   page.tsx                    /
   sobre/page.tsx               /sobre
-  servicos/page.tsx            /servicos
-  area-atendimento/page.tsx    /area-atendimento
+  servicos/page.tsx            /servicos (inclui a seção Área de Atendimento)
   contato/
     page.tsx                   /contato (Server — metadata + conteúdo estático)
     formulario-contato.tsx      Client — formulário interativo desta rota

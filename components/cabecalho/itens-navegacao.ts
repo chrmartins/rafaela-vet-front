@@ -1,6 +1,6 @@
 export const itensNavegacao = [
+  { rotulo: "Home", rota: "/" },
   { rotulo: "Sobre", rota: "/sobre" },
   { rotulo: "Serviços", rota: "/servicos" },
-  { rotulo: "Área de atendimento", rota: "/area-atendimento" },
   { rotulo: "Contato", rota: "/contato" },
 ] as const;
