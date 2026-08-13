@@ -4,10 +4,10 @@ Site institucional (multipágina) da Dra. Rafaela Soares, médica-veterinária
 com atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de
 Janeiro.
 
-Stack: **Next.js 14 (App Router)** · TypeScript · Tailwind CSS · shadcn/ui
-(padrão `cva` + Radix `Slot`) · Zod + React Hook Form · Zustand · Framer Motion.
-Fontes self-hosted via `@fontsource` (Fraunces + Work Sans) — sem
-`next/font/google`.
+Stack: **Next.js 16 (App Router, Turbopack)** · **React 19** · TypeScript ·
+Tailwind CSS · shadcn/ui (padrão `cva` + Radix `Slot`) · Zod + React Hook Form
+· Zustand · Framer Motion. Fontes self-hosted via `@fontsource` (Fraunces +
+Work Sans) — sem `next/font/google`.
 
 ## Comandos
 
@@ -15,7 +15,7 @@ Fontes self-hosted via `@fontsource` (Fraunces + Work Sans) — sem
 npm install
 npm run dev     # desenvolvimento (http://localhost:3000)
 npm run build   # build de produção
-npm run lint    # ESLint
+npm run lint    # ESLint (eslint.config.mjs, flat config)
 ```
 
 ## Rotas
@@ -81,11 +81,6 @@ marcado por comentário dentro de `aoEnviarFormulario`.
 
 ## Pendências / próximos passos
 
-- **Segurança de dependências**: fixado em `next@14.2.35` (patch seguro mais
-  recente do 14.2 — resolve o CVE crítico e os exploráveis). Restam advisories
-  em `next`/`postcss` cuja correção só existe no **Next 16** (breaking). O site
-  não usa `next/image`, então o Image Optimizer não fica exposto. Decidir junto
-  com o roadmap se/quando migrar para Next 15/16.
 - Imagem de Open Graph (`og:image`) e `favicon` definitivos da marca.
 - Integração real do formulário com a API de Agendamento quando o backend
   existir (domínio `agendamento`).

@@ -63,7 +63,11 @@ export default function LayoutRaiz({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    // data-scroll-behavior="smooth": a partir do Next.js 16 o framework não
+    // sobrescreve mais scroll-behavior:smooth (globals.css) durante a troca
+    // de rota — sem esse atributo, navegar entre páginas rolaria suavemente
+    // até o topo em vez de saltar direto. Ver app/guides/upgrading/version-16.
+    <html lang="pt-BR" data-scroll-behavior="smooth">
       <body className="font-corpo antialiased">
         <Cabecalho />
         {/* pt-20 = altura do header fixo (h-20), garante que o conteúdo de

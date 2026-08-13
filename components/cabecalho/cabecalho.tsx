@@ -2,23 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { Botao } from "@/components/ui/botao";
 import { Marca } from "@/components/marca/marca";
 import { useMenuMobile } from "@/store/use-menu-mobile";
 import { cn } from "@/lib/cn";
+import { itensNavegacao } from "./itens-navegacao";
 
-const itensNavegacao = [
-  { rotulo: "Sobre", rota: "/sobre" },
-  { rotulo: "Serviços", rota: "/servicos" },
-  { rotulo: "Área de atendimento", rota: "/area-atendimento" },
-  { rotulo: "Contato", rota: "/contato" },
-] as const;
+// Framer Motion só é baixado quando o usuário realmente abre o menu mobile
+// (ver `interagiu` abaixo) — evita que o Cabecalho, presente em toda página
+// via app/layout.tsx, carregue essa dependência no bundle compartilhado.
+const MenuMobile = dynamic(
+  () => import("./menu-mobile").then((m) => m.MenuMobile),
+  { ssr: false },
+);
 
 export function Cabecalho() {
   const { aberto, alternar, fechar } = useMenuMobile();
   const [rolou, setRolou] = useState(false);
+  const [interagiu, setInteragiu] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -94,7 +97,10 @@ export function Cabecalho() {
         {/* Botão do menu mobile */}
         <button
           type="button"
-          onClick={alternar}
+          onClick={() => {
+            setInteragiu(true);
+            alternar();
+          }}
           className="inline-flex h-11 w-11 items-center justify-center rounded-full text-verde-700 transition-colors hover:bg-verde-100 lg:hidden"
           aria-expanded={aberto}
           aria-controls="menu-mobile"
@@ -104,44 +110,8 @@ export function Cabecalho() {
         </button>
       </div>
 
-      {/* Painel de navegação mobile */}
-      <AnimatePresence>
-        {aberto && (
-          <motion.div
-            id="menu-mobile"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="overflow-hidden border-t border-linha bg-creme lg:hidden"
-          >
-            <nav
-              className="mx-auto flex max-w-conteudo flex-col gap-1 px-5 py-4 sm:px-8"
-              aria-label="Principal (mobile)"
-            >
-              {itensNavegacao.map((item) => {
-                const ativo = pathname === item.rota;
-                return (
-                  <Link
-                    key={item.rota}
-                    href={item.rota}
-                    aria-current={ativo ? "page" : undefined}
-                    className={cn(
-                      "rounded-lg px-3 py-3 font-corpo text-base transition-colors hover:bg-verde-100",
-                      ativo ? "font-semibold text-verde-900" : "text-verde-800",
-                    )}
-                  >
-                    {item.rotulo}
-                  </Link>
-                );
-              })}
-              <Botao comoFilho className="mt-3 w-full">
-                <Link href="/contato">Agendar visita</Link>
-              </Botao>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Painel de navegação mobile — só monta após o primeiro clique */}
+      {interagiu && <MenuMobile aberto={aberto} pathname={pathname} />}
     </header>
   );
 }

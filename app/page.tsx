@@ -3,8 +3,12 @@ import { Botao } from "@/components/ui/botao";
 
 export default function PaginaInicial() {
   return (
-    <section className="bg-creme">
-      <div className="mx-auto grid max-w-conteudo items-center gap-8 px-5 pb-16 pt-6 sm:px-8 sm:pb-24 sm:pt-10 lg:grid-cols-2 lg:gap-10">
+    // min-h com 100dvh (não 100vh): em mobile a viewport unit "dvh" já
+    // desconta a barra de endereço, evitando que o rodapé fique "espiando"
+    // no fim da tela quando o navegador esconde/mostra a UI ao rolar.
+    // 5rem = altura do header fixo (h-20).
+    <section className="flex min-h-[calc(100dvh-5rem)] items-center bg-creme">
+      <div className="mx-auto grid w-full max-w-conteudo items-center gap-8 px-5 py-10 sm:px-8 sm:py-14 lg:grid-cols-2 lg:gap-10">
         <div className="max-w-xl">
           <p className="animate-surgir-suave font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">
             Atendimento veterinário domiciliar · Rio de Janeiro

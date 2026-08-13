@@ -54,6 +54,9 @@ export function FormularioContato() {
     // cadeia de gesto do usuário — Safari/Chrome no celular bloqueiam
     // window.open() como pop-up nesse caso. location.href não é bloqueado.
     const url = montarLinkWhatsapp(linhas.join("\n"));
+    // Só executa dentro do handleSubmit em resposta a um envio de formulário
+    // real, nunca durante o render — a regra não distingue esse caso.
+    // eslint-disable-next-line react-hooks/immutability
     window.location.href = url;
   }
 

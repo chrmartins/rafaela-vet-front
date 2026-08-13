@@ -1,17 +1,28 @@
 # CLAUDE.md — rafaela-vet-front
 
-Site institucional da **Dra. Rafaela Soares**, médica-veterinária com
-atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de Janeiro.
-Este repositório é só o **frontend**; é o próprio repo que sobe na Vercel
-(app na raiz, sem monorepo).
+Frontend completo do sistema da **Dra. Rafaela Soares**, médica-veterinária
+com atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de
+Janeiro. É o próprio repo que sobe na Vercel (app na raiz, sem monorepo).
 
-> Repos irmãos do mesmo projeto maior (fora deste repo):
-> `rafaela-vet-api` (backend, ainda não criado). Não assuma que exista código
-> ou contrato de API além do que está documentado aqui.
+**Escopo deste repo — não é só o site público.** Hoje ele só tem a landing
+page pública (rotas `/`, `/sobre`, `/servicos`, `/area-atendimento`,
+`/contato`), mas vai crescer para incluir, **dentro do mesmo repo**, uma
+**área administrativa** com cadastro de tutores/animais, administração de
+consultas e prontuários. Não existe (e não está planejada) uma área de
+tutor separada — tudo fica na área administrativa deste `rafaela-vet-front`.
+Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
+"o site institucional". Pontos ainda em aberto (perguntar antes de assumir):
+onde a área administrativa mora no App Router, modelo de autenticação, e se
+`painel.rafaelasoares.vet` (domínio citado abaixo) ainda é o plano de deploy
+para ela.
+
+> Repo irmão do mesmo projeto maior (fora deste repo):
+> `rafaela-vet-api` (backend Spring Boot/Java, ainda não criado). Não assuma
+> que exista código ou contrato de API além do que está documentado aqui.
 
 ## Stack
 
-- **Next.js 14** (App Router) + TypeScript
+- **Next.js 16** (App Router, Turbopack) + TypeScript + **React 19**
 - Tailwind CSS
 - shadcn/ui — componentes próprios em `components/ui/`, padrão `cva` +
   Radix `Slot` (prop `comoFilho` para composição, não `asChild`)
@@ -28,13 +39,13 @@ Este repositório é só o **frontend**; é o próprio repo que sobe na Vercel
 npm install
 npm run dev     # http://localhost:3000
 npm run build   # build de produção — rodar antes de considerar algo pronto
-npm run lint    # ESLint
+npm run lint    # ESLint (eslint.config.mjs, flat config — não é mais `next lint`,
+                # removido no Next 16)
 ```
 
-Não rode `npm run build` com o `npm run dev` ativo ao mesmo tempo — os dois
-escrevem em `.next/` e corrompem os manifests (erro `SyntaxError: Unexpected
-non-whitespace character after JSON`). Se acontecer: pare o dev, `rm -rf
-.next` e suba de novo.
+`next dev` e `next build` usam saídas separadas (`.next/dev` vs `.next/`)
+desde o Next 16 — rodar os dois ao mesmo tempo não corrompe mais o build
+(bug que existia no Next 14 e está documentado no histórico deste arquivo).
 
 ## Identidade visual (não introduzir cores/fontes fora disso)
 
@@ -93,9 +104,9 @@ app/
   globals.css
 components/
   ui/                primitivos shadcn/ui (botao, campo-texto, area-texto, rotulo)
-  cabecalho/cabecalho.tsx   \
-  rodape/rodape.tsx          } usados em toda página, via app/layout.tsx
-  marca/marca.tsx           /
+  cabecalho/         cabecalho.tsx, itens-navegacao.ts, menu-mobile.tsx (ver nota abaixo)
+  rodape/rodape.tsx  \
+  marca/marca.tsx     } usados em toda página, via app/layout.tsx
   ilustracoes/       SVGs/gráficos próprios (icones, ilustracao-cao-gato)
 store/               estado global Zustand
 schema/              schemas Zod
@@ -107,6 +118,16 @@ public/              estáticos (imagens da marca, etc.)
 Router (`app/layout.tsx`, `app/<rota>/layout.tsx`) — mesmo sem conflito
 técnico real (o Next só escaneia `app/` em busca dessa convenção, nunca
 `components/`), o nome confunde à primeira leitura.
+
+**`components/cabecalho/` tem 3 arquivos, não 1**: o painel do menu mobile
+(`menu-mobile.tsx`, usa Framer Motion) é importado via `next/dynamic({ ssr:
+false })` dentro de `cabecalho.tsx`, e só é montado depois do primeiro clique
+no botão hambúrguer (estado `interagiu`) — `Cabecalho` roda em toda página via
+`app/layout.tsx`, então sem isso o Framer Motion entraria no bundle inicial
+de todo mundo mesmo quem nunca abre o menu (mobile). `itens-navegacao.ts`
+guarda o array de rotas do menu, compartilhado entre desktop e mobile. Ao
+mexer no menu mobile, mantenha esse split — não volte a importar Framer
+Motion direto em `cabecalho.tsx`.
 
 **Cabeçalho, rodapé e marca ficam em pasta própria** (`components/cabecalho/
 cabecalho.tsx`, não `components/cabecalho.tsx`) — pasta-por-componente, nome
@@ -165,14 +186,36 @@ dentro da pasta (não há pasta-por-componente ali).
 7. **Inputs sempre a 16px** (`text-base`) — evita zoom automático no iOS
    Safari. Não reduzir a fonte dos campos de formulário.
 
-## Segurança de dependências
+## Versões e dependências
 
-Fixado em `next@14.2.35` (patch mais recente do 14.2 — resolve o CVE crítico
-e os exploráveis daquela série). Restam advisories em `next`/`postcss` cuja
-correção só existe no **Next 16** (breaking, fora de escopo por ora). Como o
-site não usa `next/image`, o Image Optimizer não fica exposto — risco
-residual considerado baixo. Rodar `npm audit` antes de decidir migrar de
-major.
+Migrado de Next 14 → **16.3.1** em 2026-08-13 (projeto ainda no início — mais
+barato migrar agora do que depois que a área administrativa existir). Sem
+breaking changes reais nos aplicou: zero rotas dinâmicas, zero `fetch`, zero
+Route Handlers, zero `next/font`, zero middleware — a exposição às mudanças
+grandes do 15/16 (`params`/`searchParams` async, cache de `fetch`, etc.) foi
+zero. O que exigiu ajuste, de fato:
+
+- **ESLint**: `eslint.config.mjs` (flat config), não mais `.eslintrc.json`.
+  `eslint-config-next@16` exige **ESLint 9.x** — não use `eslint@latest` sem
+  checar antes; a versão 10 já saiu mas o `eslint-plugin-react` empacotado
+  pelo `eslint-config-next` ainda não suporta a nova API de `context` do
+  ESLint 10 (erro `getFilename is not a function`).
+- **`zod` fica travado na série 3.x** (`^3.25.0`, não `^4`) — o
+  `@hookform/resolvers` aceita as duas, mas o Zod 4 muda API o suficiente
+  para merecer avaliação própria, separada desta migração. Não faça
+  `npm install zod@latest` sem querer isso de propósito.
+- **`app/layout.tsx` tem `data-scroll-behavior="smooth"` no `<html>`** — a
+  partir do Next 16 o framework não sobrescreve mais `scroll-behavior:smooth`
+  (definido em `globals.css`) durante troca de rota; sem esse atributo, cada
+  navegação rolaria suavemente até o topo em vez de saltar direto.
+- **React 19**: todas as libs do projeto (Framer Motion, React Hook Form,
+  Radix Slot, Zustand) já declaram suporte — não houve conflito de peer deps
+  além dos dois pontos acima.
+
+`node_modules/next/dist/docs/` tem a documentação da versão exata instalada
+— é a fonte de verdade se este arquivo ficar desatualizado (ver bloco
+`nextjs-agent-rules` no fim deste arquivo, mantido automaticamente pelo
+`next dev`). Rodar `npm audit` antes de qualquer migração futura de major.
 
 ## Deploy
 
@@ -194,3 +237,17 @@ major.
    schema ou handler novo.
 3. Rodar `npm run lint` e `npm run build` antes de considerar uma mudança
    pronta.
+
+O bloco abaixo é gerado e mantido automaticamente pelo próprio `next dev`
+(não editar à mão — reaparece sozinho). Mantemos commitado, como a própria
+ferramenta recomenda.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
