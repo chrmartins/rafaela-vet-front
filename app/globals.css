@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Fontes self-hosted (@fontsource) — ver app/layout.tsx */
+  --fonte-titulo: "Fraunces", Georgia, "Times New Roman", serif;
+  --fonte-corpo: "Work Sans", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: theme("colors.creme.DEFAULT");
+    color: theme("colors.verde.900");
+    font-family: var(--fonte-corpo);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+  }
+
+  /* Cabeçalho fixo não deve cobrir o topo das seções ao navegar por âncora */
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  /* Foco visível por teclado em toda a página */
+  :focus-visible {
+    outline: 2px solid theme("colors.verde.600");
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: theme("colors.verde.300");
+    color: theme("colors.verde.900");
+  }
+}
+
+@layer utilities {
+  /* Traço-assinatura do logo: linha que "se desenha" na entrada.
+     Os paths usam pathLength="1", então o comprimento é sempre 1. */
+  .traco-desenha {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: desenhar-traco 2.2s ease-out both;
+    animation-delay: var(--atraso-traco, 0.2s);
+  }
+
+  @keyframes desenhar-traco {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Detalhes (olhos, focinho, bigodes) surgem depois que o traço se desenha */
+  .detalhe-traco {
+    opacity: 0;
+    animation: surgir-detalhe 0.6s ease-out forwards;
+    animation-delay: 2.1s;
+  }
+
+  @keyframes surgir-detalhe {
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Respeita a preferência de menos movimento em todo o site */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .traco-desenha {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+
+  .detalhe-traco {
+    opacity: 1;
+    animation: none;
+  }
+}
