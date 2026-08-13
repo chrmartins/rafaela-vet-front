@@ -5,14 +5,8 @@ export function SecaoAreaAtendimento() {
   return (
     <section id="area-atendimento" className="bg-creme py-20 sm:py-28">
       <div className="mx-auto max-w-conteudo px-5 sm:px-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-verde-600 px-7 py-12 text-creme shadow-flutuante sm:px-14 sm:py-16">
-          {/* Textura de pontos ao fundo */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-verde-500/50 blur-2xl"
-          />
-
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="rounded-[2rem] bg-verde-600 px-7 py-12 text-creme shadow-flutuante sm:px-14 sm:py-16">
+          <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="max-w-xl">
               <span className="inline-flex items-center gap-2 rounded-full bg-creme/15 px-3 py-1 text-sm font-medium text-creme">
                 <IconeMapa className="h-4 w-4" />

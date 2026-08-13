@@ -2,16 +2,7 @@ import { Botao } from "@/components/ui/botao";
 
 export function SecaoHero() {
   return (
-    <section
-      id="inicio"
-      className="relative overflow-hidden bg-creme pt-28 sm:pt-32"
-    >
-      {/* Halo suave de fundo */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-32 -top-24 h-[28rem] w-[28rem] rounded-full bg-verde-100 blur-3xl"
-      />
-
+    <section id="inicio" className="bg-creme pt-28 sm:pt-32">
       <div className="mx-auto grid max-w-conteudo items-center gap-8 px-5 pb-16 pt-4 sm:px-8 sm:pb-24 sm:pt-8 lg:grid-cols-2 lg:gap-10">
         <div className="max-w-xl">
           <p className="animate-surgir-suave font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">
