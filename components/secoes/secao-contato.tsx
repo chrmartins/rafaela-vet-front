@@ -43,8 +43,12 @@ export function SecaoContato() {
       linhas.push(`Mensagem: ${dados.mensagem.trim()}`);
     }
 
+    // Navegação direta (não window.open): o handleSubmit do React Hook Form
+    // aguarda a validação do Zod antes de chamar esta função, o que quebra a
+    // cadeia de gesto do usuário — Safari/Chrome no celular bloqueiam
+    // window.open() como pop-up nesse caso. location.href não é bloqueado.
     const url = montarLinkWhatsapp(linhas.join("\n"));
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.location.href = url;
   }
 
   return (
