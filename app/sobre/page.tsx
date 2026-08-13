@@ -34,8 +34,10 @@ const diferenciais = [
 
 export default function PaginaSobre() {
   return (
-    <section className="bg-creme py-16 sm:py-24">
-      <div className="mx-auto max-w-conteudo px-5 sm:px-8">
+    // min-h com 100dvh: garante que o rodapé só apareça depois de rolar,
+    // em qualquer viewport (ver mesmo padrão na Home, app/page.tsx).
+    <section className="flex min-h-[calc(100dvh-5rem)] items-center bg-creme py-16 sm:py-24">
+      <div className="mx-auto w-full max-w-conteudo px-5 sm:px-8">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div>
             <p className="font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">

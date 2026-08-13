@@ -44,7 +44,10 @@ const servicos = [
 
 export default function PaginaServicos() {
   return (
-    <>
+    // min-h com 100dvh no wrapper das duas seções juntas (não em cada uma
+    // separadamente) — garante que o rodapé só apareça depois de rolar, sem
+    // forçar duas telas cheias de scroll. Mesmo padrão da Home/Sobre/Contato.
+    <div className="min-h-[calc(100dvh-5rem)]">
       <section className="bg-creme-200 py-16 sm:py-24">
         <div className="mx-auto max-w-conteudo px-5 sm:px-8">
           <div className="max-w-2xl">
@@ -111,6 +114,6 @@ export default function PaginaServicos() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

@@ -11,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function PaginaContato() {
   return (
-    <section className="bg-creme-200 py-16 sm:py-24">
-      <div className="mx-auto grid max-w-conteudo gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+    // min-h com 100dvh: garante que o rodapé só apareça depois de rolar,
+    // em qualquer viewport (ver mesmo padrão na Home, app/page.tsx).
+    <section className="flex min-h-[calc(100dvh-5rem)] items-center bg-creme-200 py-16 sm:py-24">
+      <div className="mx-auto grid w-full max-w-conteudo gap-12 px-5 sm:px-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
         <div>
           <p className="font-corpo text-sm font-medium uppercase tracking-[0.18em] text-verde-500">
             Contato
