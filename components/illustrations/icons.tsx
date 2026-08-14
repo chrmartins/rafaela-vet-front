@@ -130,3 +130,37 @@ export function ArrowIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function UserIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx={12} cy={8} r={3.5} />
+      <path d="M5 20c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5" />
+    </BaseIcon>
+  );
+}
+
+export function MenuIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props} strokeWidth={2}>
+      <path d="M4 8h16M4 16h16" />
+    </BaseIcon>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props} strokeWidth={2}>
+      <path d="M5 5l14 14M19 5L5 19" />
+    </BaseIcon>
+  );
+}
+
+export function LogoutIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M14 20H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8" />
+      <path d="M16 15l4-3-4-3M20 12H10" />
+    </BaseIcon>
+  );
+}

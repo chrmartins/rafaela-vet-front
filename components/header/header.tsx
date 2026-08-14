@@ -33,18 +33,16 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Trava o scroll do corpo enquanto o menu mobile estiver aberto
+  // Trava o scroll do corpo enquanto o menu mobile estiver aberto.
+  // Efeito legítimo: sincroniza o React com o DOM (sistema externo).
+  // Fechar o menu ao navegar NÃO fica aqui — é reação a um clique, então
+  // acontece no onClick dos links (ver `onNavigate` no MobileMenu).
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
-
-  // Fecha o menu mobile sempre que a rota muda
-  useEffect(() => {
-    close();
-  }, [pathname, close]);
 
   return (
     <header
@@ -111,7 +109,9 @@ export function Header() {
       </div>
 
       {/* Painel de navegação mobile — só monta após o primeiro clique */}
-      {hasInteracted && <MobileMenu isOpen={isOpen} pathname={pathname} />}
+      {hasInteracted && (
+        <MobileMenu isOpen={isOpen} pathname={pathname} onNavigate={close} />
+      )}
     </header>
   );
 }

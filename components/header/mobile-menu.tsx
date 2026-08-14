@@ -9,6 +9,8 @@ import { navItems } from "./nav-items";
 interface MobileMenuProps {
   isOpen: boolean;
   pathname: string;
+  /** Fecha o menu ao clicar num link — reação a clique, não a efeito. */
+  onNavigate: () => void;
 }
 
 /**
@@ -16,10 +18,8 @@ interface MobileMenuProps {
  * `next/dynamic` em header.tsx para o Framer Motion não entrar no bundle
  * compartilhado de toda página — só é baixado quando o usuário de fato abre
  * o menu (ver bundle-dynamic-imports no skill vercel-react-best-practices).
- * Fechar ao trocar de rota é responsabilidade do próprio header.tsx
- * (efeito que reage a `pathname`), não deste componente.
  */
-export function MobileMenu({ isOpen, pathname }: MobileMenuProps) {
+export function MobileMenu({ isOpen, pathname, onNavigate }: MobileMenuProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -41,6 +41,7 @@ export function MobileMenu({ isOpen, pathname }: MobileMenuProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onNavigate}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "rounded-lg px-3 py-3 font-corpo text-base transition-colors hover:bg-verde-100",
@@ -52,7 +53,9 @@ export function MobileMenu({ isOpen, pathname }: MobileMenuProps) {
               );
             })}
             <Button asChild className="mt-3 w-full">
-              <Link href="/contato">Agendar visita</Link>
+              <Link href="/contato" onClick={onNavigate}>
+                Agendar visita
+              </Link>
             </Button>
           </nav>
         </motion.div>

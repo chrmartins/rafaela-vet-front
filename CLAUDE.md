@@ -37,6 +37,40 @@ Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
   subdomínio `painel.rafaelasoares.vet` que consta no `CLAUDE.md` do projeto
   pai — essa decisão é mais recente e prevalece.
 
+### Estrutura do painel (implementada)
+
+```
+proxy.ts                     guard: matcher ["/painel/:path*"]
+lib/sessao.ts                COOKIE_SESSAO, ROTA_ENTRAR, destinoSeguro()
+app/painel/
+  layout.tsx                 só metadata (noindex de TUDO sob /painel)
+  entrar/page.tsx            /painel/entrar — FORA do grupo, sem sidebar
+  (protegido)/
+    layout.tsx               casca (PainelShell)
+    painel-shell.tsx         Client: estado do drawer mobile
+    sidebar.tsx  topbar.tsx  nav-items.ts
+    page.tsx                 /painel — Agenda
+    consultas/ tutores/ animais/ disponibilidade/
+```
+
+Por que dois níveis de layout: `app/painel/layout.tsx` não desenha nada,
+existe só para aplicar `noindex` inclusive à tela de entrar. A casca visual
+mora em `(protegido)/layout.tsx` — se `entrar` ficasse dentro do grupo,
+herdaria a sidebar e mostraria a navegação por trás do login.
+
+- **O nome do cookie nunca é string solta** — vem de `lib/sessao.ts`, que é
+  compartilhado por `proxy.ts`, pelo futuro `/api/sessoes` e pelos Server
+  Components. Mesma coisa para `ROTA_ENTRAR`/`ROTA_PAINEL`.
+- **`destinoSeguro()` é obrigatório** ao ler `?destino=` da query: sem ele,
+  `/painel/entrar?destino=https://site-malicioso` vira open redirect depois
+  do login.
+- **Fechar menu/drawer é reação a clique, não a efeito.** Nada de
+  `useEffect(() => setState(...), [pathname])` — o lint `react-hooks` do
+  React 19 barra isso (`set-state-in-effect`) e ele tem razão: causa render
+  em cascata. O fechamento acontece no `onClick` dos links (`onNavigate` no
+  MobileMenu do site, `onClose` na Sidebar do painel). Efeito só para
+  sincronizar com o DOM, como travar `body.overflow`.
+
 > Repo irmão do mesmo projeto maior (fora deste repo):
 > `rafaela-vet-api` (backend Spring Boot/Java, ainda não criado). Não assuma
 > que exista código ou contrato de API além do que está documentado aqui.
