@@ -43,15 +43,15 @@ app/
   servicos/page.tsx            /servicos (inclui a seção Área de Atendimento)
   contato/
     page.tsx                   /contato (Server — metadata + conteúdo estático)
-    formulario-contato.tsx      Client — formulário interativo desta rota
+    contato-form.tsx            Client — formulário interativo desta rota
   globals.css
 components/
   ui/                    primitivos (botao, campo-texto, area-texto, rotulo)
-  cabecalho/cabecalho.tsx, rodape/rodape.tsx, marca/marca.tsx
+  header/header.tsx, footer/footer.tsx, logo/logo.tsx
                          pasta-por-componente; usados em toda página, via app/layout.tsx
-  ilustracoes/           SVGs próprios (ilustracao-cao-gato, icones)
-store/                   estado global Zustand (use-menu-mobile)
-schema/                  schemas Zod (esquema-contato → DadosContato)
+  illustrations/         SVGs próprios (icons, cao-gato-illustration)
+store/                   estado global Zustand (use-mobile-menu)
+schema/                  schemas Zod (contato-schema → ContatoData)
 lib/                     utilitários (cn, contato)
 ```
 
@@ -64,10 +64,10 @@ racional completo e as convenções de nomenclatura.
 
 ## Formulário de contato
 
-O formulário (`app/contato/formulario-contato.tsx`) valida com Zod e, ao
+O formulário (`app/contato/contato-form.tsx`) valida com Zod e, ao
 enviar, monta a mensagem e abre o **WhatsApp** (`wa.me`). Ainda **não há
 backend**. O ponto exato de integração com a futura API de Agendamento está
-marcado por comentário dentro de `aoEnviarFormulario`.
+marcado por comentário dentro de `onSubmit`.
 
 ## Acessibilidade e qualidade
 

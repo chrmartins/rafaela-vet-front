@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Botao } from "@/components/ui/botao";
+import { Button } from "@/components/ui/button";
 import {
-  IconeEstetoscopio,
-  IconeSeringa,
-  IconePata,
-  IconeAgenda,
-  IconeMapa,
-} from "@/components/ilustracoes/icones";
+  StethoscopeIcon,
+  SyringeIcon,
+  PawIcon,
+  CalendarIcon,
+  MapPinIcon,
+} from "@/components/illustrations/icons";
 
 export const metadata: Metadata = {
   title: "Serviços",
@@ -17,32 +17,32 @@ export const metadata: Metadata = {
 
 const servicos = [
   {
-    Icone: IconeEstetoscopio,
+    Icon: StethoscopeIcon,
     titulo: "Consulta clínica geral",
     descricao:
       "Avaliação completa para sintomas, mudanças de comportamento ou aquela dúvida que não pode esperar.",
   },
   {
-    Icone: IconeSeringa,
+    Icon: SyringeIcon,
     titulo: "Vacinação",
     descricao:
       "Aplicação e orientação do calendário vacinal de cães e gatos, sem sair de casa.",
   },
   {
-    Icone: IconeAgenda,
+    Icon: CalendarIcon,
     titulo: "Check-up de rotina",
     descricao:
       "Exame preventivo periódico para acompanhar a saúde do seu pet e detectar cedo o que importa.",
   },
   {
-    Icone: IconePata,
+    Icon: PawIcon,
     titulo: "Pequenos procedimentos",
     descricao:
       "Curativos, coleta de exames e cuidados simples realizados com segurança no ambiente doméstico.",
   },
 ];
 
-export default function PaginaServicos() {
+export default function ServicosPage() {
   return (
     // min-h com 100dvh no wrapper das duas seções juntas (não em cada uma
     // separadamente) — garante que o rodapé só apareça depois de rolar, sem
@@ -64,13 +64,13 @@ export default function PaginaServicos() {
           </div>
 
           <ul className="mt-12 grid gap-4 sm:grid-cols-2">
-            {servicos.map(({ Icone, titulo, descricao }) => (
+            {servicos.map(({ Icon, titulo, descricao }) => (
               <li
                 key={titulo}
                 className="group rounded-2xl border border-linha bg-creme p-7 shadow-cartao transition-transform duration-200 hover:-translate-y-1"
               >
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-verde-100 text-verde-600 transition-colors group-hover:bg-verde-300 group-hover:text-verde-900">
-                  <Icone />
+                  <Icon />
                 </span>
                 <h2 className="mt-5 font-titulo text-xl text-verde-900">
                   {titulo}
@@ -92,7 +92,7 @@ export default function PaginaServicos() {
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="max-w-xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-creme/15 px-3 py-1 text-sm font-medium text-creme">
-                  <IconeMapa className="h-4 w-4" />
+                  <MapPinIcon className="h-4 w-4" />
                   Área de atendimento
                 </span>
                 <h2 className="mt-5 font-titulo text-titulo-md text-creme">
@@ -106,9 +106,9 @@ export default function PaginaServicos() {
               </div>
 
               <div className="lg:pl-6">
-                <Botao comoFilho variante="sobreVerde" tamanho="grande">
+                <Button asChild variant="inverse" size="lg">
                   <Link href="/contato">Confirmar meu bairro</Link>
-                </Botao>
+                </Button>
               </div>
             </div>
           </div>

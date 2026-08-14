@@ -2,27 +2,27 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { Botao } from "@/components/ui/botao";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { itensNavegacao } from "./itens-navegacao";
+import { navItems } from "./nav-items";
 
-interface PropriedadesMenuMobile {
-  aberto: boolean;
+interface MobileMenuProps {
+  isOpen: boolean;
   pathname: string;
 }
 
 /**
  * Painel de navegação mobile. Vive num arquivo próprio e é importado via
- * `next/dynamic` em cabecalho.tsx para o Framer Motion não entrar no bundle
+ * `next/dynamic` em header.tsx para o Framer Motion não entrar no bundle
  * compartilhado de toda página — só é baixado quando o usuário de fato abre
  * o menu (ver bundle-dynamic-imports no skill vercel-react-best-practices).
- * Fechar ao trocar de rota é responsabilidade do próprio cabecalho.tsx
+ * Fechar ao trocar de rota é responsabilidade do próprio header.tsx
  * (efeito que reage a `pathname`), não deste componente.
  */
-export function MenuMobile({ aberto, pathname }: PropriedadesMenuMobile) {
+export function MobileMenu({ isOpen, pathname }: MobileMenuProps) {
   return (
     <AnimatePresence>
-      {aberto && (
+      {isOpen && (
         <motion.div
           id="menu-mobile"
           initial={{ opacity: 0, height: 0 }}
@@ -35,25 +35,25 @@ export function MenuMobile({ aberto, pathname }: PropriedadesMenuMobile) {
             className="mx-auto flex max-w-conteudo flex-col gap-1 px-5 py-4 sm:px-8"
             aria-label="Principal (mobile)"
           >
-            {itensNavegacao.map((item) => {
-              const ativo = pathname === item.rota;
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
               return (
                 <Link
-                  key={item.rota}
-                  href={item.rota}
-                  aria-current={ativo ? "page" : undefined}
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "rounded-lg px-3 py-3 font-corpo text-base transition-colors hover:bg-verde-100",
-                    ativo ? "font-semibold text-verde-900" : "text-verde-800",
+                    isActive ? "font-semibold text-verde-900" : "text-verde-800",
                   )}
                 >
-                  {item.rotulo}
+                  {item.label}
                 </Link>
               );
             })}
-            <Botao comoFilho className="mt-3 w-full">
+            <Button asChild className="mt-3 w-full">
               <Link href="/contato">Agendar visita</Link>
-            </Botao>
+            </Button>
           </nav>
         </motion.div>
       )}

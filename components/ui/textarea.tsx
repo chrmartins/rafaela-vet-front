@@ -1,11 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-export type PropriedadesAreaTexto =
-  React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 /** Campo de texto de múltiplas linhas. Fonte 16px evita zoom no iOS Safari. */
-const AreaTexto = React.forwardRef<HTMLTextAreaElement, PropriedadesAreaTexto>(
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
     return (
       <textarea
@@ -23,6 +22,6 @@ const AreaTexto = React.forwardRef<HTMLTextAreaElement, PropriedadesAreaTexto>(
     );
   },
 );
-AreaTexto.displayName = "AreaTexto";
+Textarea.displayName = "Textarea";
 
-export { AreaTexto };
+export { Textarea };

@@ -7,15 +7,35 @@ Janeiro. É o próprio repo que sobe na Vercel (app na raiz, sem monorepo).
 **Escopo deste repo — não é só o site público.** Hoje ele só tem a landing
 page pública (rotas `/`, `/sobre`, `/servicos`, `/contato` — Área de
 Atendimento não é mais rota própria, virou uma seção dentro de `/servicos`),
-mas vai crescer para incluir, **dentro do mesmo repo**, uma
-**área administrativa** com cadastro de tutores/animais, administração de
-consultas e prontuários. Não existe (e não está planejada) uma área de
+mas vai crescer para incluir, **dentro do mesmo repo**, uma **área
+administrativa em `/painel`** com cadastro de tutores/animais, administração
+de consultas e prontuários. Não existe (e não está planejada) uma área de
 tutor separada — tudo fica na área administrativa deste `rafaela-vet-front`.
 Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
-"o site institucional". Pontos ainda em aberto (perguntar antes de assumir):
-onde a área administrativa mora no App Router, modelo de autenticação, e se
-`painel.rafaelasoares.vet` (domínio citado abaixo) ainda é o plano de deploy
-para ela.
+"o site institucional".
+
+## Autenticação (decidido, ainda não implementado)
+
+- **Auth próprio no backend Spring Boot** (Spring Security + JWT, domínio
+  `acesso`) — **não** usar Clerk/Auth0/Keycloak. Decidido porque são 1–3
+  usuários, **sem cadastro público** (usuários criados pelo admin), e a
+  identidade fica no mesmo Postgres do prontuário (LGPD).
+- **Nenhuma biblioteca de auth no frontend** — nada de Auth.js/NextAuth. O
+  Spring é o provedor de identidade; o Next só guarda a sessão e protege
+  rota.
+- **Padrão BFF: token em cookie `httpOnly` + `Secure` + `SameSite`, nunca em
+  `localStorage`.** O navegador não deve ver o token em JavaScript; quem
+  chama a API Spring é o servidor do Next (Server Components / Route
+  Handlers). Isso é proposital: o sistema guarda prontuário e CPF, e JWT em
+  `localStorage` é lido por qualquer XSS.
+- Guard de rota em **`proxy.ts`** (no Next 16 o `middleware.ts` virou
+  `proxy.ts`; runtime é `nodejs`, `edge` não é suportado). O guard faz só
+  uma checagem barata de sessão — **a autorização real é sempre do Spring, a
+  cada request**. Nunca tratar o guard do frontend como camada de
+  segurança.
+- `/painel` fica **no mesmo domínio** (`rafaelasoares.vet/painel`), não no
+  subdomínio `painel.rafaelasoares.vet` que consta no `CLAUDE.md` do projeto
+  pai — essa decisão é mais recente e prevalece.
 
 > Repo irmão do mesmo projeto maior (fora deste repo):
 > `rafaela-vet-api` (backend Spring Boot/Java, ainda não criado). Não assuma
@@ -26,7 +46,7 @@ para ela.
 - **Next.js 16** (App Router, Turbopack) + TypeScript + **React 19**
 - Tailwind CSS
 - shadcn/ui — componentes próprios em `components/ui/`, padrão `cva` +
-  Radix `Slot` (prop `comoFilho` para composição, não `asChild`)
+  Radix `Slot` (prop `asChild` para composição)
 - Zod + React Hook Form (validação de formulário)
 - Zustand (estado global simples — hoje só o menu mobile)
 - Framer Motion (animações)
@@ -59,7 +79,7 @@ desde o Next 16 — rodar os dois ao mesmo tempo não corrompe mais o build
 - Elemento-assinatura da marca: traço único cão + gato (o motivo do logo).
   Versão em uso na Hero: `public/cao-e-gato.png` (PNG recolorido para o verde
   da marca, fundo transparente). Existe também uma versão em SVG animável
-  (`stroke-draw`) em `components/ilustracoes/ilustracao-cao-gato.tsx` — hoje
+  (`stroke-draw`) em `components/illustrations/cao-gato-illustration.tsx` — hoje
   **não está em uso** em nenhuma página; é um ativo de marca para retomar se
   quisermos a animação de "traço se desenhando" de novo.
 
@@ -86,28 +106,28 @@ Quando uma página precisa de interatividade (hooks, estado, handlers — exige
 Server Component), extraia **só a parte interativa** para um arquivo
 colocado dentro da própria pasta da rota (não em `components/`), e importe
 esse componente no `page.tsx`. Exemplo em uso: `app/contato/page.tsx`
-(Server, tem `metadata`) importa `app/contato/formulario-contato.tsx`
+(Server, tem `metadata`) importa `app/contato/contato-form.tsx`
 (Client, `"use client"`, usa `useForm`) — o resto do conteúdo estático da
 página (texto, links) fica direto no `page.tsx`.
 
 ```
 app/
   layout.tsx                layout raiz: fontes, metadata base
-                             (title.template), Cabecalho + <main pt-20> + Rodape
+                             (title.template), Header + <main pt-20> + Footer
   page.tsx                   /                  (Hero + CTAs)
   sobre/page.tsx              /sobre
   servicos/page.tsx           /servicos (inclui a seção Área de Atendimento)
   contato/
     page.tsx                  /contato (Server — metadata + conteúdo estático)
-    formulario-contato.tsx     Client — só o <form> interativo, colocado aqui
+    contato-form.tsx           Client — só o <form> interativo, colocado aqui
                                 por ser específico desta rota
   globals.css
 components/
-  ui/                primitivos shadcn/ui (botao, campo-texto, area-texto, rotulo)
-  cabecalho/         cabecalho.tsx, itens-navegacao.ts, menu-mobile.tsx (ver nota abaixo)
-  rodape/rodape.tsx  \
-  marca/marca.tsx     } usados em toda página, via app/layout.tsx
-  ilustracoes/       SVGs/gráficos próprios (icones, ilustracao-cao-gato)
+  ui/                primitivos (button, input, textarea, label)
+  header/            header.tsx, nav-items.ts, mobile-menu.tsx (ver nota abaixo)
+  footer/footer.tsx  \
+  logo/logo.tsx       } usados em toda página, via app/layout.tsx
+  illustrations/     SVGs/gráficos próprios (icons, cao-gato-illustration)
 store/               estado global Zustand
 schema/              schemas Zod
 lib/                 utilitários (cn, contato)
@@ -119,47 +139,64 @@ Router (`app/layout.tsx`, `app/<rota>/layout.tsx`) — mesmo sem conflito
 técnico real (o Next só escaneia `app/` em busca dessa convenção, nunca
 `components/`), o nome confunde à primeira leitura.
 
-**`components/cabecalho/` tem 3 arquivos, não 1**: o painel do menu mobile
-(`menu-mobile.tsx`, usa Framer Motion) é importado via `next/dynamic({ ssr:
-false })` dentro de `cabecalho.tsx`, e só é montado depois do primeiro clique
-no botão hambúrguer (estado `interagiu`) — `Cabecalho` roda em toda página via
-`app/layout.tsx`, então sem isso o Framer Motion entraria no bundle inicial
-de todo mundo mesmo quem nunca abre o menu (mobile). `itens-navegacao.ts`
-guarda o array de rotas do menu, compartilhado entre desktop e mobile. Ao
-mexer no menu mobile, mantenha esse split — não volte a importar Framer
-Motion direto em `cabecalho.tsx`.
+**`components/header/` tem 3 arquivos, não 1**: o painel do menu mobile
+(`mobile-menu.tsx`, usa Framer Motion) é importado via `next/dynamic({ ssr:
+false })` dentro de `header.tsx`, e só é montado depois do primeiro clique
+no botão hambúrguer (estado `hasInteracted`) — `Header` roda em toda página
+via `app/layout.tsx`, então sem isso o Framer Motion entraria no bundle
+inicial de todo mundo, mesmo de quem nunca abre o menu (mobile).
+`nav-items.ts` guarda o array de rotas do menu, compartilhado entre desktop,
+mobile **e o footer**. Ao mexer no menu mobile, mantenha esse split — não
+volte a importar Framer Motion direto em `header.tsx`.
 
-**Cabeçalho, rodapé e marca ficam em pasta própria** (`components/cabecalho/
-cabecalho.tsx`, não `components/cabecalho.tsx`) — pasta-por-componente, nome
-do arquivo repete o nome da pasta. Esse padrão vale hoje só para esses três;
-`components/ui/` e `components/ilustracoes/` continuam com arquivos soltos
+**Header, footer e logo ficam em pasta própria** (`components/header/
+header.tsx`, não `components/header.tsx`) — pasta-por-componente, nome do
+arquivo repete o nome da pasta. Esse padrão vale hoje só para esses três;
+`components/ui/` e `components/illustrations/` continuam com arquivos soltos
 dentro da pasta (não há pasta-por-componente ali).
 
 ## Convenções de nomenclatura (seguir à risca para todo nome novo)
 
-- **Componentes**: `PascalCase`; arquivo em `kebab-case`. Não usamos mais o
-  prefixo `Secao` (era da época em que a Home era single-page) — conteúdo de
-  página fica direto no `page.tsx`; um componente extraído (como
-  `FormularioContato`) leva nome descritivo do que faz, sem prefixo de
-  "seção".
-- **Hooks/stores Zustand**: prefixo `use` (padrão de lib do React — o lint
-  `react-hooks` depende desse prefixo, por isso não usamos `usar`):
-  `useMenuMobile`. O resto do nome fica em português.
-- **Handlers de evento**: prefixo `ao`: `aoEnviarFormulario`,
-  `aoConfirmarConsulta` — não `handleSubmit` genérico solto no nosso código
-  (a lib pode expor `handleSubmit`; a função que passamos a ela é nossa).
-- **Schemas Zod**: prefixo `esquema`, tipo inferido com prefixo `Dados`:
-  `esquemaContato` → `DadosContato`.
-- **Props de componente**: `Propriedades<NomeComponente>`:
-  `PropriedadesBotao`, `PropriedadesCampoTexto`.
-- Checklist rápido antes de nomear algo: alguém que nunca viu o código
-  entende só pelo nome? Tem verbo claro se for ação? Está em português
-  correto (sem tradução literal estranha do inglês)?
+**Princípio (revisado em 2026-08-13): linguagem de negócio em português,
+vocabulário técnico em inglês.** A regra anterior mandava tudo em português
+dentro do código e produzia nomes como `PropriedadesBotao`, `esquemaContato`
+e `comoFilho` — foi substituída por gerar mais atrito que clareza.
+
+| Categoria | Idioma | Exemplo |
+|---|---|---|
+| Domínios / módulos | 🇧🇷 | `acesso`, `cadastro`, `agendamento`, `prontuario` |
+| Entidades de negócio | 🇧🇷 | `Tutor`, `Animal`, `Consulta` |
+| Funções de negócio | 🇧🇷 | `agendarConsulta()`, `montarLinkWhatsapp()` |
+| Variáveis de negócio | 🇧🇷 | `tutorSelecionado`, `consultasDoDia`, `anoAtual` |
+| URLs / rotas | 🇧🇷 | `/sobre`, `/servicos`, `/painel/tutores` |
+| Pastas | 🇬🇧 | `components`, `lib`, `store`, `schema` |
+| Primitivos de UI | 🇬🇧 | `Button`, `Input`, `Label`, `Textarea` |
+| Layout / estrutura | 🇬🇧 | `Header`, `Footer`, `Logo`, `MobileMenu` |
+| Tipos de props | 🇬🇧 | `ButtonProps`, `InputProps` |
+| Hooks | 🇬🇧 | `useMobileMenu` |
+| Estado puro de UI | 🇬🇧 | `isOpen`, `open`, `close`, `toggle`, `hasScrolled` |
+| Handlers de evento | 🇬🇧 | `onSubmit`, `onClick`, `handleSubmit` |
+| Ícones | 🇬🇧 | `HouseIcon`, `MapPinIcon`, `WhatsappIcon` |
+
+**Padrão híbrido** (o que mais vai se repetir no painel): substantivo de
+domínio em português + termo técnico em inglês, **nessa ordem** —
+`TutorForm`, `ConsultaCard`, `ProntuarioTimeline`, `contatoSchema`,
+`ContatoData`.
+
+**Páginas**: `<Rota>Page`, mantendo a rota rastreável — `/sobre` →
+`SobrePage`, `/painel/tutores` → `TutoresPage`.
+
+**Arquivos**: `kebab-case` do nome do componente — `button.tsx`,
+`mobile-menu.tsx`, `contato-form.tsx`.
+
+Na dúvida, pergunte: *isso é conceito da clínica veterinária ou vocabulário
+que qualquer dev React reconhece?* Tutor, consulta e prontuário são do
+negócio. Button, form, card e schema são da profissão.
 
 ## Regras críticas do projeto
 
 1. **Sem backend ainda.** O formulário de contato
-   (`app/contato/formulario-contato.tsx`) valida com Zod + React Hook Form e,
+   (`app/contato/contato-form.tsx`) valida com Zod + React Hook Form e,
    ao enviar, monta a mensagem e abre o **WhatsApp** (`wa.me`) — não faz
    nenhuma chamada de API. O ponto exato de integração futura está marcado
    por comentário dentro de `aoEnviarFormulario` (procurar por `INTEGRAÇÃO
@@ -171,7 +208,7 @@ dentro da pasta (não há pasta-por-componente ali).
    estado dos CVEs do Image Optimizer.
 4. **Responsividade sem exceção**: 320px até desktop, sem overflow
    horizontal em nenhuma faixa intermediária.
-5. **Header fixo**: `components/cabecalho/cabecalho.tsx` é `fixed`, então
+5. **Header fixo**: `components/header/header.tsx` é `fixed`, então
    `app/layout.tsx` aplica `pt-20` no `<main>` (altura exata do header, `h-20`)
    para o conteúdo de toda página começar visível abaixo dele — não adicionar
    esse espaçamento de novo dentro de cada `page.tsx`. O header também tem fundo

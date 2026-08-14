@@ -2,13 +2,13 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Botao } from "@/components/ui/botao";
-import { CampoTexto } from "@/components/ui/campo-texto";
-import { AreaTexto } from "@/components/ui/area-texto";
-import { Rotulo } from "@/components/ui/rotulo";
-import { IconeWhatsapp } from "@/components/ilustracoes/icones";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { WhatsappIcon } from "@/components/illustrations/icons";
 import { montarLinkWhatsapp } from "@/lib/contato";
-import { esquemaContato, type DadosContato } from "@/schema/esquema-contato";
+import { contatoSchema, type ContatoData } from "@/schema/contato-schema";
 
 /**
  * Formulário interativo da página de Contato. Extraído em componente próprio
@@ -16,17 +16,17 @@ import { esquemaContato, type DadosContato } from "@/schema/esquema-contato";
  * Server Component para exportar `metadata` — os dois não podem coexistir no
  * mesmo arquivo.
  */
-export function FormularioContato() {
+export function ContatoForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<DadosContato>({
-    resolver: zodResolver(esquemaContato),
+  } = useForm<ContatoData>({
+    resolver: zodResolver(contatoSchema),
     mode: "onBlur",
   });
 
-  function aoEnviarFormulario(dados: DadosContato) {
+  function onSubmit(dados: ContatoData) {
     // -------------------------------------------------------------------------
     // INTEGRAÇÃO FUTURA — API de Agendamento
     // Ainda não há backend. Por enquanto o formulário apenas encaminha o
@@ -62,14 +62,14 @@ export function FormularioContato() {
 
   return (
     <form
-      onSubmit={handleSubmit(aoEnviarFormulario)}
+      onSubmit={handleSubmit(onSubmit)}
       noValidate
       className="rounded-[1.75rem] border border-linha bg-creme p-6 shadow-cartao sm:p-8"
     >
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-2 sm:col-span-2">
-          <Rotulo htmlFor="nome">Nome completo</Rotulo>
-          <CampoTexto
+          <Label htmlFor="nome">Nome completo</Label>
+          <Input
             id="nome"
             autoComplete="name"
             placeholder="Como podemos te chamar?"
@@ -85,8 +85,8 @@ export function FormularioContato() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Rotulo htmlFor="telefone">Telefone / WhatsApp</Rotulo>
-          <CampoTexto
+          <Label htmlFor="telefone">Telefone / WhatsApp</Label>
+          <Input
             id="telefone"
             type="tel"
             inputMode="tel"
@@ -104,8 +104,8 @@ export function FormularioContato() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <Rotulo htmlFor="bairro">Bairro</Rotulo>
-          <CampoTexto
+          <Label htmlFor="bairro">Bairro</Label>
+          <Input
             id="bairro"
             autoComplete="address-level3"
             placeholder="Onde seu pet está?"
@@ -121,11 +121,11 @@ export function FormularioContato() {
         </div>
 
         <div className="flex flex-col gap-2 sm:col-span-2">
-          <Rotulo htmlFor="mensagem">
+          <Label htmlFor="mensagem">
             Mensagem{" "}
             <span className="font-normal text-verde-500">(opcional)</span>
-          </Rotulo>
-          <AreaTexto
+          </Label>
+          <Textarea
             id="mensagem"
             placeholder="Conte um pouco sobre seu pet e o que precisa."
             aria-invalid={!!errors.mensagem}
@@ -140,14 +140,14 @@ export function FormularioContato() {
         </div>
       </div>
 
-      <Botao type="submit" tamanho="grande" className="mt-6 w-full sm:w-auto">
-        <IconeWhatsapp className="h-5 w-5" />
+      <Button type="submit" size="lg" className="mt-6 w-full sm:w-auto">
+        <WhatsappIcon className="h-5 w-5" />
         Enviar pelo WhatsApp
-      </Botao>
+      </Button>
 
       <p className="mt-4 font-corpo text-xs leading-relaxed text-verde-500">
-        Ao enviar, você abre uma conversa no WhatsApp com os dados
-        preenchidos. Nenhuma informação é armazenada por este site.
+        Ao enviar, você abre uma conversa no WhatsApp com os dados preenchidos.
+        Nenhuma informação é armazenada por este site.
       </p>
     </form>
   );

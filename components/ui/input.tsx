@@ -1,13 +1,13 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-export type PropriedadesCampoTexto = React.InputHTMLAttributes<HTMLInputElement>;
+export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 /**
  * Campo de texto de linha única. Fonte 16px (text-base) para evitar o
  * zoom automático do iOS Safari ao focar o input.
  */
-const CampoTexto = React.forwardRef<HTMLInputElement, PropriedadesCampoTexto>(
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type = "text", ...props }, ref) => {
     return (
       <input
@@ -26,6 +26,6 @@ const CampoTexto = React.forwardRef<HTMLInputElement, PropriedadesCampoTexto>(
     );
   },
 );
-CampoTexto.displayName = "CampoTexto";
+Input.displayName = "Input";
 
-export { CampoTexto };
+export { Input };

@@ -1,23 +1,19 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-export type PropriedadesRotulo =
-  React.LabelHTMLAttributes<HTMLLabelElement>;
+export type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>;
 
-const Rotulo = React.forwardRef<HTMLLabelElement, PropriedadesRotulo>(
+const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => {
     return (
       <label
         ref={ref}
-        className={cn(
-          "text-sm font-medium text-verde-700",
-          className,
-        )}
+        className={cn("text-sm font-medium text-verde-700", className)}
         {...props}
       />
     );
   },
 );
-Rotulo.displayName = "Rotulo";
+Label.displayName = "Label";
 
-export { Rotulo };
+export { Label };

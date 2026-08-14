@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 /**
- * Validação do formulário de contato da Home.
+ * Validação do formulário de contato.
  * Espelha os campos que serão enviados à futura API de Agendamento.
  */
-export const esquemaContato = z.object({
+export const contatoSchema = z.object({
   nome: z
     .string()
     .trim()
@@ -32,4 +32,4 @@ export const esquemaContato = z.object({
 });
 
 /** Dados validados do formulário de contato. */
-export type DadosContato = z.infer<typeof esquemaContato>;
+export type ContatoData = z.infer<typeof contatoSchema>;

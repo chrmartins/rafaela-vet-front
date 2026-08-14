@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { IconeWhatsapp } from "@/components/ilustracoes/icones";
+import { WhatsappIcon } from "@/components/illustrations/icons";
 import { contato } from "@/lib/contato";
-import { FormularioContato } from "./formulario-contato";
+import { ContatoForm } from "./contato-form";
 
 export const metadata: Metadata = {
   title: "Contato",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Agende uma visita veterinária domiciliar com a Dra. Rafaela Soares no Rio de Janeiro. Preencha o formulário e continue pelo WhatsApp.",
 };
 
-export default function PaginaContato() {
+export default function ContatoPage() {
   return (
     // min-h com 100dvh: garante que o rodapé só apareça depois de rolar,
     // em qualquer viewport (ver mesmo padrão na Home, app/page.tsx).
@@ -32,7 +32,7 @@ export default function PaginaContato() {
             className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-linha bg-creme px-5 py-4 font-corpo text-verde-800 shadow-cartao transition-colors hover:bg-verde-100"
           >
             <span className="grid h-10 w-10 place-items-center rounded-full bg-verde-100 text-verde-600">
-              <IconeWhatsapp className="h-5 w-5" />
+              <WhatsappIcon className="h-5 w-5" />
             </span>
             <span className="flex flex-col leading-tight">
               <span className="text-xs text-verde-500">
@@ -43,7 +43,7 @@ export default function PaginaContato() {
           </a>
         </div>
 
-        <FormularioContato />
+        <ContatoForm />
       </div>
     </section>
   );

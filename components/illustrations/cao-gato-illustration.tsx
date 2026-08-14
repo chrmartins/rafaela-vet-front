@@ -1,22 +1,26 @@
 import { cn } from "@/lib/cn";
 
-interface PropriedadesIlustracaoCaoGato {
+interface CaoGatoIllustrationProps {
   className?: string;
   /** Ativa a animação de "traço se desenhando" na entrada. */
-  animar?: boolean;
+  animated?: boolean;
 }
 
 /**
  * Motivo cão + gato do logo da marca, recriado como ilustração de traço único.
- * Ao montar com `animar`, a linha se desenha (stroke-draw) — respeitando
+ * Ao montar com `animated`, a linha se desenha (stroke-draw) — respeitando
  * prefers-reduced-motion via classes em globals.css.
+ *
+ * NOTA: hoje não está em uso em nenhuma página — a Hero usa o PNG
+ * (public/cao-e-gato.png). Mantido como ativo de marca caso queiramos
+ * retomar a animação de traço.
  */
-export function IlustracaoCaoGato({
+export function CaoGatoIllustration({
   className,
-  animar = false,
-}: PropriedadesIlustracaoCaoGato) {
-  const classeTraco = animar ? "traco-desenha" : undefined;
-  const classeDetalhe = animar ? "detalhe-traco" : undefined;
+  animated = false,
+}: CaoGatoIllustrationProps) {
+  const strokeClass = animated ? "traco-desenha" : undefined;
+  const detailClass = animated ? "detalhe-traco" : undefined;
 
   return (
     <svg
@@ -35,12 +39,12 @@ export function IlustracaoCaoGato({
       >
         {/* --- CÃO (esquerda), orelhas caídas --- */}
         <path
-          className={classeTraco}
+          className={strokeClass}
           pathLength={1}
           d="M140 78 C118 78 112 92 112 104 C96 96 74 104 70 132 C66 160 78 182 100 186 C98 210 116 232 140 236 C164 232 182 210 180 186 C202 182 214 160 210 132 C206 104 184 96 168 104 C168 92 162 78 140 78 Z"
         />
         <path
-          className={classeTraco}
+          className={strokeClass}
           pathLength={1}
           style={{ ["--atraso-traco" as string]: "0.5s" }}
           d="M122 198 C122 216 140 226 140 226 C140 226 158 216 158 198"
@@ -48,7 +52,7 @@ export function IlustracaoCaoGato({
 
         {/* --- GATO (direita), orelhas pontudas --- */}
         <path
-          className={classeTraco}
+          className={strokeClass}
           pathLength={1}
           style={{ ["--atraso-traco" as string]: "1s" }}
           d="M312 116 L324 74 L346 106 C348 105 350 105 352 106 L372 74 L384 116 C396 132 396 162 380 178 C372 196 356 204 348 204 C340 204 324 196 316 178 C300 162 300 132 312 116 Z"
@@ -56,7 +60,7 @@ export function IlustracaoCaoGato({
       </g>
 
       {/* --- Detalhes: olhos, focinhos, bigodes --- */}
-      <g className={classeDetalhe} fill="currentColor" stroke="none">
+      <g className={detailClass} fill="currentColor" stroke="none">
         {/* olhos do cão */}
         <circle cx={122} cy={168} r={4.5} />
         <circle cx={158} cy={168} r={4.5} />
@@ -71,7 +75,7 @@ export function IlustracaoCaoGato({
 
       {/* bigodes do gato */}
       <g
-        className={classeDetalhe}
+        className={detailClass}
         stroke="currentColor"
         strokeWidth={3}
         strokeLinecap="round"

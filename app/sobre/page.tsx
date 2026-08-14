@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import {
-  IconeCasa,
-  IconeCoracao,
-  IconeRelogio,
-} from "@/components/ilustracoes/icones";
+  HouseIcon,
+  HeartIcon,
+  ClockIcon,
+} from "@/components/illustrations/icons";
 
 export const metadata: Metadata = {
   title: "Sobre",
@@ -13,26 +13,26 @@ export const metadata: Metadata = {
 
 const diferenciais = [
   {
-    Icone: IconeCasa,
+    Icon: HouseIcon,
     titulo: "No conforto de casa",
     descricao:
       "Seu pet é atendido no próprio território, sem o estresse do transporte e da sala de espera lotada.",
   },
   {
-    Icone: IconeCoracao,
+    Icon: HeartIcon,
     titulo: "Atenção sem pressa",
     descricao:
       "Cada visita tem tempo para examinar com calma e ouvir você — o cuidado que um pet merece.",
   },
   {
-    Icone: IconeRelogio,
+    Icon: ClockIcon,
     titulo: "Horário que cabe na rotina",
     descricao:
       "Você agenda a visita no melhor momento do seu dia, direto pelo WhatsApp.",
   },
 ];
 
-export default function PaginaSobre() {
+export default function SobrePage() {
   return (
     // min-h com 100dvh: garante que o rodapé só apareça depois de rolar,
     // em qualquer viewport (ver mesmo padrão na Home, app/page.tsx).
@@ -61,13 +61,13 @@ export default function PaginaSobre() {
           </div>
 
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            {diferenciais.map(({ Icone, titulo, descricao }) => (
+            {diferenciais.map(({ Icon, titulo, descricao }) => (
               <li
                 key={titulo}
                 className="rounded-2xl border border-linha bg-creme-200/50 p-6 shadow-cartao"
               >
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-verde-100 text-verde-600">
-                  <Icone />
+                  <Icon />
                 </span>
                 <h2 className="mt-4 font-titulo text-lg text-verde-900">
                   {titulo}

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Botao } from "@/components/ui/botao";
+import { Button } from "@/components/ui/button";
 
-export default function PaginaInicial() {
+export default function HomePage() {
   return (
     // min-h com 100dvh (não 100vh): em mobile a viewport unit "dvh" já
     // desconta a barra de endereço, evitando que o rodapé fique "espiando"
@@ -35,12 +35,12 @@ export default function PaginaInicial() {
             className="mt-9 flex flex-col gap-3 sm:flex-row animate-surgir-suave"
             style={{ animationDelay: "0.24s" }}
           >
-            <Botao comoFilho tamanho="grande">
+            <Button asChild size="lg">
               <Link href="/contato">Agendar visita</Link>
-            </Botao>
-            <Botao comoFilho variante="secundario" tamanho="grande">
+            </Button>
+            <Button asChild variant="secondary" size="lg">
               <Link href="/servicos">Ver serviços</Link>
-            </Botao>
+            </Button>
           </div>
         </div>
 
