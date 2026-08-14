@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from "next";
 
-import { Header } from "@/components/header/header";
-import { Footer } from "@/components/footer/footer";
-
 // Fontes self-hosted via @fontsource (sem next/font/google — melhor p/ LGPD e performance).
 // Subset latino apenas, pesos usados no design.
 import "@fontsource/fraunces/latin-400.css";
@@ -68,13 +65,9 @@ export default function RootLayout({
     // de rota — sem esse atributo, navegar entre páginas rolaria suavemente
     // até o topo em vez de saltar direto. Ver app/guides/upgrading/version-16.
     <html lang="pt-BR" data-scroll-behavior="smooth">
-      <body className="font-corpo antialiased">
-        <Header />
-        {/* pt-20 = altura do header fixo (h-20), garante que o conteúdo de
-            toda página comece visível abaixo dele */}
-        <main className="pt-20">{children}</main>
-        <Footer />
-      </body>
+      {/* Header/Footer não vivem aqui: cada área tem o seu layout —
+          app/(site) para o site público, app/painel para a área restrita. */}
+      <body className="font-corpo antialiased">{children}</body>
     </html>
   );
 }
