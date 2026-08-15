@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo/logo";
-import { CloseIcon, LogoutIcon } from "@/components/illustrations/icons";
+import { CloseIcon } from "@/components/illustrations/icons";
 import { cn } from "@/lib/cn";
 import { painelNavItems, isNavItemActive } from "./nav-items";
+import { BotaoSair } from "./botao-sair";
 
 interface SidebarProps {
   pathname: string;
+  /** Usuário da sessão, resolvido no servidor pelo layout. */
+  usuario: { nomeCompleto: string; perfil: string };
   /** Só afeta o drawer mobile; no desktop a sidebar é sempre visível. */
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function Sidebar({ pathname, isOpen, onClose }: SidebarProps) {
+export function Sidebar({ pathname, usuario, isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Fundo escurecido do drawer (só mobile) */}
@@ -78,20 +81,13 @@ export function Sidebar({ pathname, isOpen, onClose }: SidebarProps) {
         </nav>
 
         <div className="shrink-0 border-t border-creme/15 p-3">
-          {/* TODO: trocar por dados reais da sessão quando a API existir */}
           <div className="px-3 py-2">
             <p className="font-corpo text-sm font-medium text-creme">
-              Dra. Rafaela Soares
+              {usuario.nomeCompleto}
             </p>
-            <p className="font-corpo text-xs text-creme/60">CRMV-RJ</p>
+            <p className="font-corpo text-xs text-creme/60">{usuario.perfil}</p>
           </div>
-          <button
-            type="button"
-            className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 font-corpo text-sm text-creme/85 transition-colors hover:bg-creme/10 hover:text-creme"
-          >
-            <LogoutIcon className="h-5 w-5 shrink-0" />
-            Sair
-          </button>
+          <BotaoSair />
         </div>
       </aside>
     </>

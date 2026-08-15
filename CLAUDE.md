@@ -33,9 +33,41 @@ Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
   uma checagem barata de sessão — **a autorização real é sempre do Spring, a
   cada request**. Nunca tratar o guard do frontend como camada de
   segurança.
-- `/painel` fica **no mesmo domínio** (`rafaelasoares.vet/painel`), não no
-  subdomínio `painel.rafaelasoares.vet` que consta no `CLAUDE.md` do projeto
-  pai — essa decisão é mais recente e prevalece.
+- `/painel` fica **no mesmo domínio** (`rafaelasoares.vet/painel`), não em
+  subdomínio: mesmo deploy, cookie de sessão same-origin, sem DNS nem CORS
+  extra.
+
+### Como falar com a API
+
+```
+lib/api.ts        cliente HTTP (SÓ servidor) — anexa o token do cookie
+lib/acesso.ts     funções tipadas do domínio acesso (criarSessao, etc.)
+app/api/sessoes/  Route Handler = o BFF: grava e apaga o cookie httpOnly
+```
+
+- **`lib/api.ts` nunca roda no navegador.** Ele lê o cookie httpOnly com
+  `cookies()` do Next e manda `Authorization: Bearer`. Se for importado num
+  componente `"use client"`, quebra — e é essa quebra que garante o padrão.
+- O login envia para **`/api/sessoes` do próprio Next**, não para a API
+  Spring. É o servidor do Next que recebe o token e o guarda no cookie; a
+  resposta ao navegador traz só o usuário. Verificado na prática:
+  `document.cookie`, `localStorage` e `sessionStorage` ficam **vazios** com o
+  usuário logado.
+- Erros da API viram `ApiError`, que preserva o `requestId` — o mesmo id que
+  marca as linhas de log no backend. Ao mostrar erro inesperado ao usuário,
+  exiba esse id: é com ele que se acha o rastro.
+- `ApiError` estende `Error`, então a mensagem está em `.message` (não
+  `.mensagem`) — propriedade da linguagem.
+
+### Onde a sessão é realmente validada
+
+Em `app/painel/(protegido)/layout.tsx`, que chama `buscarUsuarioAtual()` e
+redireciona para o login se der 401/403. O guard em `proxy.ts` **não** valida
+nada — só checa se o cookie existe, para evitar piscar tela vazia. Um cookie
+forjado passa pelo guard e morre no layout.
+
+Erro que **não** é 401/403 (backend fora do ar, por exemplo) é relançado de
+propósito: fingir que a pessoa foi deslogada esconderia o problema real.
 
 ### Estrutura do painel (implementada)
 

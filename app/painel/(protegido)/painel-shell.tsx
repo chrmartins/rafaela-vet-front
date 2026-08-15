@@ -11,7 +11,13 @@ import { Topbar } from "./topbar";
  * Separado de `layout.tsx` porque precisa de estado (drawer mobile) e o
  * layout precisa continuar Server Component para exportar `metadata`.
  */
-export function PainelShell({ children }: { children: React.ReactNode }) {
+interface PainelShellProps {
+  children: React.ReactNode;
+  /** Vem do layout, que resolve a sessão no servidor. */
+  usuario: { nomeCompleto: string; perfil: string };
+}
+
+export function PainelShell({ children, usuario }: PainelShellProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const pathname = usePathname();
 
@@ -34,6 +40,7 @@ export function PainelShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-dvh bg-creme-200">
       <Sidebar
         pathname={pathname}
+        usuario={usuario}
         isOpen={isDrawerOpen}
         onClose={closeDrawer}
       />
