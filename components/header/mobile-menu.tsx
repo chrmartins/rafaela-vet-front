@@ -1,8 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { UserIcon } from "@/components/illustrations/icons";
 import { cn } from "@/lib/cn";
 import { navItems } from "./nav-items";
 
@@ -57,6 +58,18 @@ export function MobileMenu({ isOpen, pathname, onNavigate }: MobileMenuProps) {
                 Agendar visita
               </Link>
             </Button>
+
+            {/* Acesso da equipe, separado por uma linha para não se misturar
+                à navegação do site. Aponta para /painel — o guard decide
+                entre painel e login. */}
+            <Link
+              href="/painel"
+              onClick={onNavigate}
+              className="mt-4 inline-flex items-center justify-center gap-2 border-t border-linha pt-4 font-corpo text-sm text-verde-500 transition-colors hover:text-verde-700"
+            >
+              <UserIcon className="h-4 w-4" />
+              Painel da equipe
+            </Link>
           </nav>
         </motion.div>
       )}

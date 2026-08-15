@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo/logo";
+import { UserIcon } from "@/components/illustrations/icons";
 import { useMobileMenu } from "@/store/use-mobile-menu";
 import { cn } from "@/lib/cn";
 import { navItems } from "./nav-items";
@@ -86,7 +87,23 @@ export function Header() {
           })}
         </nav>
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-5 lg:flex">
+          {/* Acesso da equipe. Aponta direto para /painel: quem tem sessão
+              entra, quem não tem é mandado ao login pelo guard (proxy.ts).
+              Não checamos a sessão aqui de propósito — ler o cookie tornaria
+              todo o site público dinâmico e custaria a geração estática.
+
+              Discreto por decisão: o público do site são tutores, e só a
+              equipe usa o painel. Competir com o CTA seria ruído para 99%
+              de quem visita. */}
+          <Link
+            href="/painel"
+            className="inline-flex items-center gap-1.5 rounded font-corpo text-sm text-verde-500 transition-colors hover:text-verde-700"
+          >
+            <UserIcon className="h-4 w-4" />
+            Painel
+          </Link>
+
           <Button asChild>
             <Link href="/contato">Agendar visita</Link>
           </Button>
