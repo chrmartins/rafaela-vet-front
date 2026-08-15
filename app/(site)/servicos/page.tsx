@@ -67,9 +67,9 @@ export default function ServicosPage() {
             {servicos.map(({ Icon, titulo, descricao }) => (
               <li
                 key={titulo}
-                className="group rounded-2xl border border-linha bg-creme p-7 shadow-cartao transition-transform duration-200 hover:-translate-y-1"
+                className="group rounded-lg border border-linha bg-creme p-7 shadow-cartao transition-transform duration-200 hover:-translate-y-1"
               >
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-verde-100 text-verde-600 transition-colors group-hover:bg-verde-300 group-hover:text-verde-900">
+                <span className="grid h-12 w-12 place-items-center rounded-lg bg-verde-100 text-verde-600 transition-colors group-hover:bg-verde-300 group-hover:text-verde-900">
                   <Icon />
                 </span>
                 <h2 className="mt-5 font-titulo text-xl text-verde-900">
@@ -88,7 +88,7 @@ export default function ServicosPage() {
           agora vive dentro de Serviços */}
       <section className="bg-creme py-16 sm:py-24">
         <div className="mx-auto max-w-conteudo px-5 sm:px-8">
-          <div className="rounded-[2rem] bg-verde-600 px-7 py-12 text-creme shadow-flutuante sm:px-14 sm:py-16">
+          <div className="rounded-lg bg-verde-600 px-7 py-12 text-creme shadow-flutuante sm:px-14 sm:py-16">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="max-w-xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-creme/15 px-3 py-1 text-sm font-medium text-creme">

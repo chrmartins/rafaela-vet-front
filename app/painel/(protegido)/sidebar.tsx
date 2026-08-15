@@ -65,7 +65,7 @@ export function Sidebar({ pathname, usuario, isOpen, onClose }: SidebarProps) {
                     onClick={onClose}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl px-3 py-3 font-corpo text-sm transition-colors",
+                      "flex items-center gap-3 rounded-lg px-3 py-3 font-corpo text-sm transition-colors",
                       isActive
                         ? "bg-creme text-verde-700 font-semibold"
                         : "text-creme/85 hover:bg-creme/10 hover:text-creme",

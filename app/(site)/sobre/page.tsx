@@ -64,7 +64,7 @@ export default function SobrePage() {
             {diferenciais.map(({ Icon, titulo, descricao }) => (
               <li
                 key={titulo}
-                className="rounded-2xl border border-linha bg-creme-200/50 p-6 shadow-cartao"
+                className="rounded-lg border border-linha bg-creme-200/50 p-6 shadow-cartao"
               >
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-verde-100 text-verde-600">
                   <Icon />

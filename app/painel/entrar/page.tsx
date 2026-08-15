@@ -21,7 +21,7 @@ export default async function EntrarPage({
           <Logo withTagline />
         </div>
 
-        <div className="mt-8 rounded-[1.75rem] border border-linha bg-creme p-6 shadow-cartao sm:p-8">
+        <div className="mt-8 rounded-lg border border-linha bg-creme p-6 shadow-cartao sm:p-8">
           <h1 className="font-titulo text-2xl text-verde-900">Acesso ao painel</h1>
           <p className="mt-2 font-corpo text-sm leading-relaxed text-verde-700">
             Área restrita. Use as credenciais fornecidas pela administração.

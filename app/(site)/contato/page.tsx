@@ -29,7 +29,7 @@ export default function ContatoPage() {
 
           <a
             href={`tel:+${contato.whatsappNumero}`}
-            className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-linha bg-creme px-5 py-4 font-corpo text-verde-800 shadow-cartao transition-colors hover:bg-verde-100"
+            className="mt-8 inline-flex items-center gap-3 rounded-lg border border-linha bg-creme px-5 py-4 font-corpo text-verde-800 shadow-cartao transition-colors hover:bg-verde-100"
           >
             <span className="grid h-10 w-10 place-items-center rounded-full bg-verde-100 text-verde-600">
               <WhatsappIcon className="h-5 w-5" />

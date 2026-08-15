@@ -11,7 +11,7 @@ export function EmConstrucao({
 }) {
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="rounded-2xl border border-dashed border-linha bg-creme p-8 sm:p-12">
+      <div className="rounded-lg border border-dashed border-linha bg-creme p-8 sm:p-12">
         <h2 className="font-titulo text-xl text-verde-900">{titulo}</h2>
         <p className="mt-2 max-w-prose font-corpo text-sm leading-relaxed text-verde-700">
           {descricao}

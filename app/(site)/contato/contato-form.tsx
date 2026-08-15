@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,6 +55,14 @@ export function ContatoForm() {
     // cadeia de gesto do usuário — Safari/Chrome no celular bloqueiam
     // window.open() como pop-up nesse caso. location.href não é bloqueado.
     const url = montarLinkWhatsapp(linhas.join("\n"));
+
+    // Fica visível quando a pessoa volta do WhatsApp para o navegador — é o
+    // único sinal de que o envio saiu daqui. Se o app não abrir (já aconteceu
+    // no celular), o toast é o que evita a sensação de botão morto.
+    toast.success("Abrindo o WhatsApp", {
+      description: "Sua mensagem já vai preenchida. É só enviar.",
+    });
+
     // Só executa dentro do handleSubmit em resposta a um envio de formulário
     // real, nunca durante o render — a regra não distingue esse caso.
     // eslint-disable-next-line react-hooks/immutability
@@ -64,7 +73,7 @@ export function ContatoForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="rounded-[1.75rem] border border-linha bg-creme p-6 shadow-cartao sm:p-8"
+      className="rounded-lg border border-linha bg-creme p-6 shadow-cartao sm:p-8"
     >
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="flex flex-col gap-2 sm:col-span-2">

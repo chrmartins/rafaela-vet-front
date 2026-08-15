@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,6 @@ import { loginSchema, type LoginData } from "@/schema/login-schema";
  */
 export function LoginForm({ destino }: { destino: string }) {
   const router = useRouter();
-  const [erroGeral, setErroGeral] = useState<string | null>(null);
 
   const {
     register,
@@ -30,8 +29,6 @@ export function LoginForm({ destino }: { destino: string }) {
   });
 
   async function onSubmit(dados: LoginData) {
-    setErroGeral(null);
-
     try {
       const resposta = await fetch("/api/sessoes", {
         method: "POST",
@@ -41,9 +38,19 @@ export function LoginForm({ destino }: { destino: string }) {
 
       if (!resposta.ok) {
         const corpo = await resposta.json().catch(() => ({}));
-        setErroGeral(corpo.mensagem ?? "Não foi possível entrar.");
+        // A API devolve a mesma mensagem para e-mail inexistente, senha errada
+        // e usuário inativo — de propósito, para não revelar quem tem conta.
+        // Não tente detalhar aqui.
+        toast.error("Não foi possível entrar", {
+          description: corpo.mensagem ?? "Verifique o e-mail e a senha.",
+        });
         return;
       }
+
+      // O Toaster é global e o toast sobrevive à navegação — sem isto, o erro
+      // da tentativa anterior aparece dentro do painel depois de um login que
+      // deu certo.
+      toast.dismiss();
 
       // `refresh` antes de navegar: o guard e o shell leem o cookie no
       // servidor, e sem isso a navegação usaria a árvore antiga, ainda sem
@@ -51,7 +58,9 @@ export function LoginForm({ destino }: { destino: string }) {
       router.refresh();
       router.replace(destino);
     } catch {
-      setErroGeral("Sem conexão com o servidor. Tente novamente.");
+      toast.error("Sem conexão com o servidor", {
+        description: "Verifique sua internet e tente novamente.",
+      });
     }
   }
 
@@ -95,16 +104,10 @@ export function LoginForm({ destino }: { destino: string }) {
         )}
       </div>
 
-      {erroGeral && (
-        // role="alert" faz o leitor de tela anunciar sem precisar focar.
-        <p
-          role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          {erroGeral}
-        </p>
-      )}
-
+      {/* Falha de login vira toast (o Sonner já anuncia em leitor de tela).
+          Erro de campo continua inline, logo abaixo do input: quem está
+          corrigindo um campo precisa da mensagem parada ali, não de um aviso
+          que some sozinho. */}
       <Button type="submit" size="lg" disabled={isSubmitting} className="mt-1 w-full">
         {isSubmitting ? "Entrando..." : "Entrar"}
       </Button>

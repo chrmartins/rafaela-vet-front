@@ -14,12 +14,19 @@ tutor separada — tudo fica na área administrativa deste `rafaela-vet-front`.
 Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
 "o site institucional".
 
-## Autenticação (decidido, ainda não implementado)
+## Autenticação (implementada)
 
-- **Auth próprio no backend Spring Boot** (Spring Security + JWT, domínio
-  `acesso`) — **não** usar Clerk/Auth0/Keycloak. Decidido porque são 1–3
-  usuários, **sem cadastro público** (usuários criados pelo admin), e a
-  identidade fica no mesmo Postgres do prontuário (LGPD).
+> O fluxo inteiro — login, requisição autenticada, logout, ciclo de vida da
+> sessão — está escrito e **desenhado em diagramas** em
+> `rafaela-vet-api/docs/autenticacao.md` (repo irmão). É o documento canônico
+> do assunto; o que está aqui é o recorte do frontend.
+
+- **Auth próprio no backend Spring Boot** (Spring Security + **token opaco**
+  guardado no banco, domínio `acesso`) — **não** usar Clerk/Auth0/Keycloak, e
+  **não é JWT**: token opaco permite revogação imediata (sair invalida de
+  verdade). Decidido porque são 1–3 usuários, **sem cadastro público**
+  (usuários criados pelo admin), e a identidade fica no mesmo Postgres do
+  prontuário (LGPD).
 - **Nenhuma biblioteca de auth no frontend** — nada de Auth.js/NextAuth. O
   Spring é o provedor de identidade; o Next só guarda a sessão e protege
   rota.
@@ -103,9 +110,10 @@ herdaria a sidebar e mostraria a navegação por trás do login.
   MobileMenu do site, `onClose` na Sidebar do painel). Efeito só para
   sincronizar com o DOM, como travar `body.overflow`.
 
-> Repo irmão do mesmo projeto maior (fora deste repo):
-> `rafaela-vet-api` (backend Spring Boot/Java, ainda não criado). Não assuma
-> que exista código ou contrato de API além do que está documentado aqui.
+> Repo irmão do mesmo projeto maior (fora deste repo): `rafaela-vet-api`
+> (backend Spring Boot/Java). O domínio `acesso` já existe e funciona; os
+> demais (`cadastro`, `agendamento`, `prontuario`) ainda não. Não assuma
+> contrato de API que não esteja no `CLAUDE.md` de lá.
 
 ## Stack
 
@@ -139,6 +147,18 @@ desde o Next 16 — rodar os dois ao mesmo tempo não corrompe mais o build
 - Verde primário `#4F6142` · verde médio `#6E8659` · verde claro `#A8BB95`
 - Creme (fundo) `#FBF9F1` / `#F6F2E4` · texto `#2E3A26`
 - Tokens em `tailwind.config.ts`: `verde-*`, `creme-*`, `linha`
+- **Raio único: `--radius: 1rem` (16px).** Toda superfície retangular — card,
+  bloco, input, botão, item de menu, alerta — usa **`rounded-lg`**. Não existe
+  segundo raio: nada de `rounded-[2rem]`, `rounded-2xl` ou valor arbitrário
+  (havia três valores diferentes até 2026-08-15; foram unificados).
+  `rounded-md`, `rounded-xl`, `rounded-2xl` e `rounded-3xl` estão mapeados
+  para o **mesmo** `var(--radius)` em `tailwind.config.ts` — isso é de
+  propósito: **componente novo colado do shadcn já nasce no padrão**, sem
+  depender de alguém lembrar de trocar a classe. Para mudar o raio do site
+  inteiro, mexa só em `--radius` (`app/globals.css`).
+  **`rounded-full` é a única exceção**, e só para o que é círculo ou pílula
+  *por forma*: logo, avatar, container de ícone, badge, botão só-ícone. Canto
+  arredondado de retângulo nunca é `rounded-full`.
 - Tipografia: `Fraunces` (display, títulos) + `Work Sans` (corpo), expostas
   como `--fonte-titulo` / `--fonte-corpo` em `app/globals.css`,
   `font-titulo` / `font-corpo` no Tailwind
@@ -259,9 +279,50 @@ Na dúvida, pergunte: *isso é conceito da clínica veterinária ou vocabulário
 que qualquer dev React reconhece?* Tutor, consulta e prontuário são do
 negócio. Button, form, card e schema são da profissão.
 
+## Feedback ao usuário (toast)
+
+**É o Sonner, não o Toast do Radix.** O shadcn descontinuou o componente
+`toast` próprio e hoje recomenda o [Sonner](https://sonner.emilkowal.ski/) —
+foi o que instalamos. `components/ui/sonner.tsx` é o wrapper com a identidade
+da marca (creme, verde, Work Sans, `rounded-lg`).
+
+```tsx
+import { toast } from "sonner";
+
+toast.success("Tutor cadastrado");
+toast.error("Não foi possível salvar", { description: erro.message });
+toast.warning("...");
+```
+
+- **O `<Toaster />` fica em `app/layout.tsx`**, uma vez só, valendo para o site
+  e para o painel. É de propósito estar na raiz: o toast **sobrevive à
+  navegação client-side**, o que permite avisar "Sessão encerrada" e só então
+  redirecionar para o login.
+- **O outro lado disso:** um toast disparado antes de navegar continua na tela
+  depois. Em fluxo que termina em sucesso, chame `toast.dismiss()` antes do
+  `router.replace()` — senão o erro da tentativa anterior reaparece na tela
+  seguinte (foi exatamente o que aconteceu no login).
+- **Quando usar o quê** — a divisão não é estética:
+
+  | Situação | Onde |
+  |---|---|
+  | Erro de campo (Zod / React Hook Form) | **inline**, embaixo do input |
+  | Resultado de operação (salvar, entrar, sair, excluir) | **toast** |
+  | Erro que exige uma decisão ou tem instrução longa | bloco na página, não toast |
+
+  Erro de campo nunca vira toast: quem está corrigindo um formulário precisa
+  da mensagem parada ao lado do campo, não de um aviso que some em 5s.
+- **Título curto, detalhe no `description`.** O título diz o que aconteceu
+  ("Não foi possível entrar"); o `description` diz o que fazer.
+- Não repita no toast a mensagem crua da API sem ler: a de login é genérica de
+  propósito (não revela se o e-mail existe). Ver
+  `rafaela-vet-api/docs/autenticacao.md`.
+
 ## Regras críticas do projeto
 
-1. **Sem backend ainda.** O formulário de contato
+1. **O formulário de contato não passa pelo backend.** Existe API
+   (`rafaela-vet-api`), mas ela atende o painel, não o site público. O
+   formulário de contato
    (`app/contato/contato-form.tsx`) valida com Zod + React Hook Form e,
    ao enviar, monta a mensagem e abre o **WhatsApp** (`wa.me`) — não faz
    nenhuma chamada de API. O ponto exato de integração futura está marcado

@@ -41,6 +41,22 @@ const config: Config = {
       maxWidth: {
         conteudo: "72rem",
       },
+      borderRadius: {
+        // Raio único da marca (`--radius` em globals.css). No nosso código
+        // escrevemos sempre `rounded-lg`; os outros degraus apontam para o
+        // mesmo valor porque o shadcn gera componentes com `rounded-md` /
+        // `rounded-xl` — assim um componente novo já nasce no padrão, sem
+        // precisar lembrar de trocar a classe.
+        //
+        // `rounded-full` continua intacto e é a única exceção legítima:
+        // vale para o que é círculo ou pílula por forma (logo, avatar,
+        // container de ícone, badge), não para canto arredondado.
+        md: "var(--radius)",
+        lg: "var(--radius)",
+        xl: "var(--radius)",
+        "2xl": "var(--radius)",
+        "3xl": "var(--radius)",
+      },
       boxShadow: {
         cartao: "0 1px 2px rgba(46,58,38,0.04), 0 12px 32px -12px rgba(46,58,38,0.18)",
         flutuante: "0 8px 40px -12px rgba(46,58,38,0.28)",

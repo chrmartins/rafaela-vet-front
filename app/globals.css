@@ -6,6 +6,11 @@
   /* Fontes self-hosted (@fontsource) — ver app/layout.tsx */
   --fonte-titulo: "Fraunces", Georgia, "Times New Roman", serif;
   --fonte-corpo: "Work Sans", system-ui, -apple-system, sans-serif;
+
+  /* Raio único de toda superfície retangular: card, bloco, input, botão.
+     Só existe este valor — quem precisar de outro está criando exceção.
+     Ler junto com `borderRadius` em tailwind.config.ts. */
+  --radius: 1rem; /* 16px */
 }
 
 @layer base {

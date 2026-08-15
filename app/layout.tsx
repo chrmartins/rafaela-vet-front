@@ -13,6 +13,8 @@ import "@fontsource/work-sans/latin-600.css";
 
 import "./globals.css";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const tituloSite = "Dra. Rafaela Soares — Veterinária domiciliar no Rio de Janeiro";
 const descricaoSite =
   "Atendimento veterinário domiciliar para cães e gatos no Rio de Janeiro. Clínica geral, vacinação e check-up de rotina, com o seu pet no conforto de casa.";
@@ -67,7 +69,13 @@ export default function RootLayout({
     <html lang="pt-BR" data-scroll-behavior="smooth">
       {/* Header/Footer não vivem aqui: cada área tem o seu layout —
           app/(site) para o site público, app/painel para a área restrita. */}
-      <body className="font-corpo antialiased">{children}</body>
+      <body className="font-corpo antialiased">
+        {children}
+        {/* Um único Toaster para as duas áreas. Fica na raiz de propósito: é o
+            que faz o toast sobreviver à navegação client-side (ex.: avisar
+            "Sessão encerrada" e só então redirecionar para o login). */}
+        <Toaster />
+      </body>
     </html>
   );
 }
