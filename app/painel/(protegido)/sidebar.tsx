@@ -2,13 +2,18 @@ import Link from "next/link";
 import { Logo } from "@/components/logo/logo";
 import { CloseIcon } from "@/components/illustrations/icons";
 import { cn } from "@/lib/cn";
-import { painelNavItems, isNavItemActive } from "./nav-items";
+import type { PerfilAcesso } from "@/lib/acesso-modelo";
+import { navItemsPara, isNavItemActive } from "./nav-items";
 import { BotaoSair } from "./botao-sair";
 
 interface SidebarProps {
   pathname: string;
   /** Usuário da sessão, resolvido no servidor pelo layout. */
-  usuario: { nomeCompleto: string; perfil: string };
+  usuario: {
+    nomeCompleto: string;
+    perfil: string;
+    perfilAcesso: PerfilAcesso;
+  };
   /** Só afeta o drawer mobile; no desktop a sidebar é sempre visível. */
   isOpen: boolean;
   onClose: () => void;
@@ -55,7 +60,7 @@ export function Sidebar({ pathname, usuario, isOpen, onClose }: SidebarProps) {
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="flex flex-col gap-1">
-            {painelNavItems.map((item) => {
+            {navItemsPara(usuario.perfilAcesso).map((item) => {
               const isActive = isNavItemActive(pathname, item);
               const { Icon } = item;
               return (

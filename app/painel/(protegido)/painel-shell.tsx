@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import type { PerfilAcesso } from "@/lib/acesso-modelo";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 
@@ -14,7 +15,11 @@ import { Topbar } from "./topbar";
 interface PainelShellProps {
   children: React.ReactNode;
   /** Vem do layout, que resolve a sessão no servidor. */
-  usuario: { nomeCompleto: string; perfil: string };
+  usuario: {
+    nomeCompleto: string;
+    perfil: string;
+    perfilAcesso: PerfilAcesso;
+  };
 }
 
 export function PainelShell({ children, usuario }: PainelShellProps) {

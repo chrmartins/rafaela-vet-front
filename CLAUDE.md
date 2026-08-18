@@ -47,10 +47,18 @@ Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
 ### Como falar com a API
 
 ```
-lib/api.ts        cliente HTTP (SÓ servidor) — anexa o token do cookie
-lib/acesso.ts     funções tipadas do domínio acesso (criarSessao, etc.)
-app/api/sessoes/  Route Handler = o BFF: grava e apaga o cookie httpOnly
+lib/api.ts            cliente HTTP (SÓ servidor) — anexa o token do cookie
+lib/acesso.ts         chamadas do domínio acesso (SÓ servidor)
+lib/acesso-modelo.ts  tipos + rotuloPerfil — sem dependência de servidor
+lib/autorizacao.ts    usuário da sessão (com cache) e exigirAdministrador()
+app/api/sessoes/      Route Handler = o BFF: grava e apaga o cookie httpOnly
 ```
+
+- **`lib/acesso.ts` vs `lib/acesso-modelo.ts`**: o primeiro importa `api.ts` e
+  só roda no servidor; o segundo tem tipos e rótulos e pode ser importado por
+  Client Component. Importar `rotuloPerfil` de `acesso.ts` num `"use client"`
+  quebra o build inteiro — já quebrou, e é assim que deve ser. **Valor usado
+  no navegador mora em `acesso-modelo.ts`.**
 
 - **`lib/api.ts` nunca roda no navegador.** Ele lê o cookie httpOnly com
   `cookies()` do Next e manda `Authorization: Bearer`. Se for importado num
@@ -90,7 +98,16 @@ app/painel/
     sidebar.tsx  topbar.tsx  nav-items.ts
     page.tsx                 /painel — Agenda
     consultas/ tutores/ animais/ disponibilidade/
+    usuarios/                /painel/usuarios — só ADMINISTRADOR
+      page.tsx               Server: checa o perfil e lista
+      acoes.ts               "use server": criar e inativar
+      novo-usuario-form.tsx  Client: formulário
+      lista-usuarios.tsx     Client: tabela + inativação em 2 passos
 ```
+
+`usuarios/` é o **modelo para as próximas telas de CRUD**: Server Component
+busca e checa, Server Actions mutam e chamam `revalidatePath`, Client
+Components só cuidam de formulário e interação.
 
 Por que dois níveis de layout: `app/painel/layout.tsx` não desenha nada,
 existe só para aplicar `noindex` inclusive à tela de entrar. A casca visual
@@ -120,7 +137,14 @@ herdaria a sidebar e mostraria a navegação por trás do login.
 - **Next.js 16** (App Router, Turbopack) + TypeScript + **React 19**
 - Tailwind CSS
 - shadcn/ui — componentes próprios em `components/ui/`, padrão `cva` +
-  Radix `Slot` (prop `asChild` para composição)
+  Radix `Slot` (prop `asChild` para composição).
+  **`select.tsx` usa `@radix-ui/react-select`, não o `<select>` nativo.**
+  Tentamos o nativo primeiro e não serve: a lista aberta do `<select>` é
+  desenhada pelo sistema operacional, não pelo CSS — no macOS vem cinza-escura
+  com destaque azul, ignorando a paleta. Não há como estilizar. Com o Radix a
+  lista é DOM comum (creme, verde, `rounded-lg`) e o teclado, o foco e o ARIA
+  continuam funcionando. **Com React Hook Form use `Controller`** — não é um
+  input com `ref`, então `register()` não dá conta.
 - Zod + React Hook Form (validação de formulário)
 - Zustand (estado global simples — hoje só o menu mobile)
 - Framer Motion (animações)
@@ -278,6 +302,30 @@ domínio em português + termo técnico em inglês, **nessa ordem** —
 Na dúvida, pergunte: *isso é conceito da clínica veterinária ou vocabulário
 que qualquer dev React reconhece?* Tutor, consulta e prontuário são do
 negócio. Button, form, card e schema são da profissão.
+
+## Autorização por perfil (três camadas, uma por porta)
+
+Implementado em `/painel/usuarios`; **é o padrão para toda tela restrita nova.**
+
+| Camada | Onde | Protege? |
+|---|---|---|
+| Esconder o item do menu | `navItemsPara(perfil)` em `nav-items.ts` | **Não** — é aparência |
+| Checar o perfil na rota | o `page.tsx` da rota | Sim, para quem navega |
+| Checar dentro da mutação | `exigirAdministrador()` na Server Action | **Sim — é a que importa** |
+
+- **Esconder o link não protege.** Quem digita `/painel/usuarios` na barra de
+  endereço chega no componente do mesmo jeito. O filtro do menu existe para
+  não oferecer uma porta trancada, só isso.
+- **Server Action é endpoint POST público.** Quem tiver o id da action chama
+  direto, sem nunca abrir a página que a renderizou — então a checagem tem que
+  estar **dentro da ação**, na primeira linha. Corolário: em arquivo
+  `"use server"`, toda função exportada vira endpoint. Não exporte auxiliar
+  que não precisa ser chamada do cliente.
+- **A API é a autoridade final**, e ela recusa de novo (todo `/api/usuarios/**`
+  exige `ADMINISTRADOR`). Verificado: um `ATENDENTE` leva 403 no backend mesmo
+  passando por cima do frontend inteiro.
+- `buscarUsuarioDaSessao()` (em `lib/autorizacao.ts`) usa o `cache()` do React:
+  layout, página e action da mesma requisição consultam a API uma vez só.
 
 ## Feedback ao usuário (toast)
 

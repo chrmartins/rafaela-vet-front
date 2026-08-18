@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ApiError } from "@/lib/api";
-import { buscarUsuarioAtual, rotuloPerfil } from "@/lib/acesso";
+import { rotuloPerfil } from "@/lib/acesso-modelo";
+import { buscarUsuarioDaSessao } from "@/lib/autorizacao";
 import { ROTA_ENTRAR } from "@/lib/sessao";
 import { PainelShell } from "./painel-shell";
 
@@ -20,7 +21,10 @@ export default async function PainelProtegidoLayout({
   let usuario;
 
   try {
-    usuario = await buscarUsuarioAtual();
+    // Via `buscarUsuarioDaSessao` (com cache por requisição): a página filha
+    // também precisa do usuário para checar o perfil, e assim a API é
+    // consultada uma vez só.
+    usuario = await buscarUsuarioDaSessao();
   } catch (erro) {
     if (erro instanceof ApiError && (erro.status === 401 || erro.status === 403)) {
       // Sessão expirada, revogada ou cookie inválido.
@@ -36,6 +40,9 @@ export default async function PainelProtegidoLayout({
       usuario={{
         nomeCompleto: usuario.nomeCompleto,
         perfil: rotuloPerfil[usuario.perfilAcesso],
+        // O enum cru, e não só o rótulo: é ele que a sidebar usa para decidir
+        // quais itens de menu mostrar.
+        perfilAcesso: usuario.perfilAcesso,
       }}
     >
       {children}

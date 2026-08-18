@@ -140,6 +140,18 @@ export function UserIcon(props: IconProps) {
   );
 }
 
+/** Equipe / usuários do sistema — distinto do UserIcon, que é "um tutor". */
+export function UsersIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <circle cx={9.5} cy={8} r={3.5} />
+      <path d="M3 20c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" />
+      <path d="M16.5 5.2a3.5 3.5 0 0 1 0 5.6" />
+      <path d="M18.5 14.9c1.6.8 2.5 2.2 2.5 4.1" />
+    </BaseIcon>
+  );
+}
+
 export function MenuIcon(props: IconProps) {
   return (
     <BaseIcon {...props} strokeWidth={2}>

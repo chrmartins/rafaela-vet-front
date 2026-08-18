@@ -1,37 +1,18 @@
 import { chamarApi } from "./api";
+import type { PerfilAcesso, Sessao, Usuario } from "./acesso-modelo";
 
 /**
  * Domínio `acesso` da API: sessão e usuários do painel.
  *
  * Espelha o contrato de `rafaela-vet-api`. Tudo aqui roda **no servidor** —
  * é o servidor do Next que fala com a API, nunca o navegador.
+ *
+ * Os tipos e o `rotuloPerfil` ficam em `acesso-modelo.ts`, que não depende de
+ * servidor: é de lá que um Client Component importa. Importar deste arquivo
+ * no navegador quebra o build, de propósito.
  */
 
-export type PerfilAcesso = "ADMINISTRADOR" | "VETERINARIO" | "ATENDENTE";
-
-/** Rótulos para exibição — o enum cru é maiúsculo e feio na tela. */
-export const rotuloPerfil: Record<PerfilAcesso, string> = {
-  ADMINISTRADOR: "Administrador",
-  VETERINARIO: "Veterinário",
-  ATENDENTE: "Atendente",
-};
-
-export interface Usuario {
-  idUsuario: string;
-  nomeCompleto: string;
-  email: string;
-  perfilAcesso: PerfilAcesso;
-  ativo: boolean;
-  criadoEm: string;
-  atualizadoEm: string;
-}
-
-export interface Sessao {
-  /** Só o servidor do Next vê este valor; vai direto para o cookie httpOnly. */
-  token: string;
-  expiraEm: string;
-  usuario: Usuario;
-}
+export type { PerfilAcesso, Sessao, Usuario };
 
 /** Autentica. Único endpoint da API que não exige token. */
 export function criarSessao(email: string, senha: string) {

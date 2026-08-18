@@ -66,9 +66,15 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // Abertura da lista do Select (components/ui/select.tsx).
+        "surgir-lista": {
+          from: { opacity: "0", transform: "scale(0.97)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "surgir-suave": "surgir-suave 0.6s ease-out both",
+        "surgir-lista": "surgir-lista 0.14s ease-out",
       },
     },
   },

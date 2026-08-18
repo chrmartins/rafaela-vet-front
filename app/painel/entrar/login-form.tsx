@@ -74,7 +74,7 @@ export function LoginForm({ destino }: { destino: string }) {
           inputMode="email"
           autoComplete="username"
           autoFocus
-          placeholder="voce@rafaelasoares.vet"
+          placeholder="Seu email"
           aria-invalid={!!errors.email}
           aria-describedby={errors.email ? "erro-email" : undefined}
           {...register("email")}
