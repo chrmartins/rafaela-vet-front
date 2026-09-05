@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Cadastro de usuário do painel.
  *
- * Espelha as restrições do `CriarUsuarioRequest` da API — se mudar lá, mude
+ * Espelha as restrições do `CriarUsuarioRequestDto` da API — se mudar lá, mude
  * aqui. Validar no cliente é conveniência (erro na hora, sem ida ao servidor);
  * quem decide continua sendo a API, e a Server Action revalida com este mesmo
  * schema antes de chamar o backend.
