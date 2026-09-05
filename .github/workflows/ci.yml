@@ -1,0 +1,69 @@
+# Lint e build a cada push e pull request.
+#
+# Roda exatamente os dois comandos que o CLAUDE.md manda rodar localmente
+# antes de considerar uma mudança pronta (`npm run lint` e `npm run build`),
+# para não existir a situação de "passa na minha máquina e quebra aqui".
+#
+# Ainda não há suíte de testes no front. Quando houver, entra como mais um
+# passo, depois do lint.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Push novo na mesma branch cancela a execução anterior: o resultado dela já
+# não interessa e o runner fica livre.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Só leitura. Este workflow não escreve nada no repositório.
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Lint e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Node 22 (LTS) — o Next 16 exige 20+, e 22 é o que roda na máquina do
+      # dev. `cache: npm` guarda o diretório do npm entre execuções, chaveado
+      # pelo package-lock.json.
+      - name: Configurar Node 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+
+      # `npm ci`, não `npm install`: instala exatamente o que está no
+      # package-lock.json e falha se o lock estiver fora de sincronia com o
+      # package.json — em vez de resolver a diferença sozinho e mascarar o
+      # problema, que é o que `install` faria.
+      - name: Instalar dependências
+        run: npm ci
+
+      # Cache do compilador do Next. A chave leva o SHA para sempre gravar uma
+      # entrada nova; a restore-key faz o build aproveitar a anterior enquanto
+      # as dependências não mudarem.
+      - name: Cache do build do Next
+        uses: actions/cache@v6
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      # Lint antes do build: é o passo rápido, então quebra cedo.
+      - name: Lint
+        run: npm run lint
+
+      # `next build` também faz a checagem de tipos do TypeScript — não é
+      # preciso um passo `tsc` separado.
+      - name: Build
+        run: npm run build

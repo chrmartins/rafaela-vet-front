@@ -166,6 +166,23 @@ npm run lint    # ESLint (eslint.config.mjs, flat config — não é mais `next 
 desde o Next 16 — rodar os dois ao mesmo tempo não corrompe mais o build
 (bug que existia no Next 14 e está documentado no histórico deste arquivo).
 
+## Integração contínua
+
+`.github/workflows/ci.yml` roda `npm run lint` e `npm run build` a cada push
+na `main` e em todo pull request. São **os mesmos dois comandos** da seção
+acima, de propósito: não deve existir a situação de "passa aqui e quebra lá".
+
+A instalação usa `npm ci`, não `npm install` — ele instala exatamente o que
+está no `package-lock.json` e falha se o lock estiver fora de sincronia com o
+`package.json`, em vez de resolver a diferença sozinho.
+
+Não é preciso passar `API_URL` ao workflow: `lib/api.ts` tem valor padrão, e
+as rotas do `/painel` são dinâmicas, então nada chama a API durante o build.
+
+`next build` já faz a checagem de tipos do TypeScript — não existe passo
+`tsc` separado. **Ainda não há suíte de testes**; quando houver, entra no
+workflow como mais um passo, depois do lint.
+
 ## Identidade visual (não introduzir cores/fontes fora disso)
 
 - Verde primário `#4F6142` · verde médio `#6E8659` · verde claro `#A8BB95`
