@@ -1,4 +1,4 @@
-# CLAUDE.md — rafaela-vet-front
+# CLAUDE.md — rafaelasoares-site
 
 Frontend completo do sistema da **Dra. Rafaela Soares**, médica-veterinária
 com atendimento **domiciliar** (clínica geral, cães e gatos) no Rio de
@@ -7,130 +7,10 @@ Janeiro. É o próprio repo que sobe na Vercel (app na raiz, sem monorepo).
 **Escopo deste repo — não é só o site público.** Hoje ele só tem a landing
 page pública (rotas `/`, `/sobre`, `/servicos`, `/contato` — Área de
 Atendimento não é mais rota própria, virou uma seção dentro de `/servicos`),
-mas vai crescer para incluir, **dentro do mesmo repo**, uma **área
-administrativa em `/painel`** com cadastro de tutores/animais, administração
-de consultas e prontuários. Não existe (e não está planejada) uma área de
-tutor separada — tudo fica na área administrativa deste `rafaela-vet-front`.
-Ao estruturar rotas/pastas novas, não assuma que este repo continua sendo só
-"o site institucional".
-
-## Autenticação (implementada)
-
-> O fluxo inteiro — login, requisição autenticada, logout, ciclo de vida da
-> sessão — está escrito e **desenhado em diagramas** em
-> `rafaela-vet-api/docs/autenticacao.md` (repo irmão). É o documento canônico
-> do assunto; o que está aqui é o recorte do frontend.
-
-- **Auth próprio no backend Spring Boot** (Spring Security + **token opaco**
-  guardado no banco, domínio `acesso`) — **não** usar Clerk/Auth0/Keycloak, e
-  **não é JWT**: token opaco permite revogação imediata (sair invalida de
-  verdade). Decidido porque são 1–3 usuários, **sem cadastro público**
-  (usuários criados pelo admin), e a identidade fica no mesmo Postgres do
-  prontuário (LGPD).
-- **Nenhuma biblioteca de auth no frontend** — nada de Auth.js/NextAuth. O
-  Spring é o provedor de identidade; o Next só guarda a sessão e protege
-  rota.
-- **Padrão BFF: token em cookie `httpOnly` + `Secure` + `SameSite`, nunca em
-  `localStorage`.** O navegador não deve ver o token em JavaScript; quem
-  chama a API Spring é o servidor do Next (Server Components / Route
-  Handlers). Isso é proposital: o sistema guarda prontuário e CPF, e JWT em
-  `localStorage` é lido por qualquer XSS.
-- Guard de rota em **`proxy.ts`** (no Next 16 o `middleware.ts` virou
-  `proxy.ts`; runtime é `nodejs`, `edge` não é suportado). O guard faz só
-  uma checagem barata de sessão — **a autorização real é sempre do Spring, a
-  cada request**. Nunca tratar o guard do frontend como camada de
-  segurança.
-- `/painel` fica **no mesmo domínio** (`rafaelasoares.vet/painel`), não em
-  subdomínio: mesmo deploy, cookie de sessão same-origin, sem DNS nem CORS
-  extra.
-
-### Como falar com a API
-
-```
-lib/api.ts            cliente HTTP (SÓ servidor) — anexa o token do cookie
-lib/acesso.ts         chamadas do domínio acesso (SÓ servidor)
-lib/acesso-modelo.ts  tipos + rotuloPerfil — sem dependência de servidor
-lib/autorizacao.ts    usuário da sessão (com cache) e exigirAdministrador()
-app/api/sessoes/      Route Handler = o BFF: grava e apaga o cookie httpOnly
-```
-
-- **`lib/acesso.ts` vs `lib/acesso-modelo.ts`**: o primeiro importa `api.ts` e
-  só roda no servidor; o segundo tem tipos e rótulos e pode ser importado por
-  Client Component. Importar `rotuloPerfil` de `acesso.ts` num `"use client"`
-  quebra o build inteiro — já quebrou, e é assim que deve ser. **Valor usado
-  no navegador mora em `acesso-modelo.ts`.**
-
-- **`lib/api.ts` nunca roda no navegador.** Ele lê o cookie httpOnly com
-  `cookies()` do Next e manda `Authorization: Bearer`. Se for importado num
-  componente `"use client"`, quebra — e é essa quebra que garante o padrão.
-- O login envia para **`/api/sessoes` do próprio Next**, não para a API
-  Spring. É o servidor do Next que recebe o token e o guarda no cookie; a
-  resposta ao navegador traz só o usuário. Verificado na prática:
-  `document.cookie`, `localStorage` e `sessionStorage` ficam **vazios** com o
-  usuário logado.
-- Erros da API viram `ApiError`, que preserva o `requestId` — o mesmo id que
-  marca as linhas de log no backend. Ao mostrar erro inesperado ao usuário,
-  exiba esse id: é com ele que se acha o rastro.
-- `ApiError` estende `Error`, então a mensagem está em `.message` (não
-  `.mensagem`) — propriedade da linguagem.
-
-### Onde a sessão é realmente validada
-
-Em `app/painel/(protegido)/layout.tsx`, que chama `buscarUsuarioAtual()` e
-redireciona para o login se der 401/403. O guard em `proxy.ts` **não** valida
-nada — só checa se o cookie existe, para evitar piscar tela vazia. Um cookie
-forjado passa pelo guard e morre no layout.
-
-Erro que **não** é 401/403 (backend fora do ar, por exemplo) é relançado de
-propósito: fingir que a pessoa foi deslogada esconderia o problema real.
-
-### Estrutura do painel (implementada)
-
-```
-proxy.ts                     guard: matcher ["/painel/:path*"]
-lib/sessao.ts                COOKIE_SESSAO, ROTA_ENTRAR, destinoSeguro()
-app/painel/
-  layout.tsx                 só metadata (noindex de TUDO sob /painel)
-  entrar/page.tsx            /painel/entrar — FORA do grupo, sem sidebar
-  (protegido)/
-    layout.tsx               casca (PainelShell)
-    painel-shell.tsx         Client: estado do drawer mobile
-    sidebar.tsx  topbar.tsx  nav-items.ts
-    page.tsx                 /painel — Agenda
-    consultas/ tutores/ animais/ disponibilidade/
-    usuarios/                /painel/usuarios — só ADMINISTRADOR
-      page.tsx               Server: checa o perfil e lista
-      acoes.ts               "use server": criar e inativar
-      novo-usuario-form.tsx  Client: formulário
-      lista-usuarios.tsx     Client: tabela + inativação em 2 passos
-```
-
-`usuarios/` é o **modelo para as próximas telas de CRUD**: Server Component
-busca e checa, Server Actions mutam e chamam `revalidatePath`, Client
-Components só cuidam de formulário e interação.
-
-Por que dois níveis de layout: `app/painel/layout.tsx` não desenha nada,
-existe só para aplicar `noindex` inclusive à tela de entrar. A casca visual
-mora em `(protegido)/layout.tsx` — se `entrar` ficasse dentro do grupo,
-herdaria a sidebar e mostraria a navegação por trás do login.
-
-- **O nome do cookie nunca é string solta** — vem de `lib/sessao.ts`, que é
-  compartilhado por `proxy.ts`, pelo futuro `/api/sessoes` e pelos Server
-  Components. Mesma coisa para `ROTA_ENTRAR`/`ROTA_PAINEL`.
-- **`destinoSeguro()` é obrigatório** ao ler `?destino=` da query: sem ele,
-  `/painel/entrar?destino=https://site-malicioso` vira open redirect depois
-  do login.
-- **Fechar menu/drawer é reação a clique, não a efeito.** Nada de
-  `useEffect(() => setState(...), [pathname])` — o lint `react-hooks` do
-  React 19 barra isso (`set-state-in-effect`) e ele tem razão: causa render
-  em cascata. O fechamento acontece no `onClick` dos links (`onNavigate` no
-  MobileMenu do site, `onClose` na Sidebar do painel). Efeito só para
-  sincronizar com o DOM, como travar `body.overflow`.
-
-> Repo irmão do mesmo projeto maior (fora deste repo): `rafaela-vet-api`
-> (backend Spring Boot/Java). O domínio `acesso` já existe e funciona; os
-> demais (`cadastro`, `agendamento`, `prontuario`) ainda não. Não assuma
-> contrato de API que não esteja no `CLAUDE.md` de lá.
+**e é só isso**. O painel de gestão que morava aqui em `/painel` saiu deste
+repositório: virou o **VetPlanet** (`vetplanet-app`), produto para
+veterinários autônomos. Este repo voltou a ser o que o nome diz — o site
+institucional da Dra. Rafaela, sem backend e sem área restrita.
 
 ## Stack
 
@@ -176,8 +56,8 @@ A instalação usa `npm ci`, não `npm install` — ele instala exatamente o que
 está no `package-lock.json` e falha se o lock estiver fora de sincronia com o
 `package.json`, em vez de resolver a diferença sozinho.
 
-Não é preciso passar `API_URL` ao workflow: `lib/api.ts` tem valor padrão, e
-as rotas do `/painel` são dinâmicas, então nada chama a API durante o build.
+Não é preciso passar variável de ambiente nenhuma ao workflow: este site não
+consome API.
 
 `next build` já faz a checagem de tipos do TypeScript — não existe passo
 `tsc` separado. **Ainda não há suíte de testes**; quando houver, entra no
@@ -295,7 +175,7 @@ e `comoFilho` — foi substituída por gerar mais atrito que clareza.
 | Entidades de negócio | 🇧🇷 | `Tutor`, `Animal`, `Consulta` |
 | Funções de negócio | 🇧🇷 | `agendarConsulta()`, `montarLinkWhatsapp()` |
 | Variáveis de negócio | 🇧🇷 | `tutorSelecionado`, `consultasDoDia`, `anoAtual` |
-| URLs / rotas | 🇧🇷 | `/sobre`, `/servicos`, `/painel/tutores` |
+| URLs / rotas | 🇧🇷 | `/sobre`, `/servicos`, `/contato` |
 | Pastas | 🇬🇧 | `components`, `lib`, `store`, `schema` |
 | Primitivos de UI | 🇬🇧 | `Button`, `Input`, `Label`, `Textarea` |
 | Layout / estrutura | 🇬🇧 | `Header`, `Footer`, `Logo`, `MobileMenu` |
@@ -305,13 +185,13 @@ e `comoFilho` — foi substituída por gerar mais atrito que clareza.
 | Handlers de evento | 🇬🇧 | `onSubmit`, `onClick`, `handleSubmit` |
 | Ícones | 🇬🇧 | `HouseIcon`, `MapPinIcon`, `WhatsappIcon` |
 
-**Padrão híbrido** (o que mais vai se repetir no painel): substantivo de
+**Padrão híbrido**: substantivo de
 domínio em português + termo técnico em inglês, **nessa ordem** —
 `TutorForm`, `ConsultaCard`, `ProntuarioTimeline`, `contatoSchema`,
 `ContatoData`.
 
 **Páginas**: `<Rota>Page`, mantendo a rota rastreável — `/sobre` →
-`SobrePage`, `/painel/tutores` → `TutoresPage`.
+`SobrePage`, `/servicos` → `ServicosPage`.
 
 **Arquivos**: `kebab-case` do nome do componente — `button.tsx`,
 `mobile-menu.tsx`, `contato-form.tsx`.
@@ -319,30 +199,6 @@ domínio em português + termo técnico em inglês, **nessa ordem** —
 Na dúvida, pergunte: *isso é conceito da clínica veterinária ou vocabulário
 que qualquer dev React reconhece?* Tutor, consulta e prontuário são do
 negócio. Button, form, card e schema são da profissão.
-
-## Autorização por perfil (três camadas, uma por porta)
-
-Implementado em `/painel/usuarios`; **é o padrão para toda tela restrita nova.**
-
-| Camada | Onde | Protege? |
-|---|---|---|
-| Esconder o item do menu | `navItemsPara(perfil)` em `nav-items.ts` | **Não** — é aparência |
-| Checar o perfil na rota | o `page.tsx` da rota | Sim, para quem navega |
-| Checar dentro da mutação | `exigirAdministrador()` na Server Action | **Sim — é a que importa** |
-
-- **Esconder o link não protege.** Quem digita `/painel/usuarios` na barra de
-  endereço chega no componente do mesmo jeito. O filtro do menu existe para
-  não oferecer uma porta trancada, só isso.
-- **Server Action é endpoint POST público.** Quem tiver o id da action chama
-  direto, sem nunca abrir a página que a renderizou — então a checagem tem que
-  estar **dentro da ação**, na primeira linha. Corolário: em arquivo
-  `"use server"`, toda função exportada vira endpoint. Não exporte auxiliar
-  que não precisa ser chamada do cliente.
-- **A API é a autoridade final**, e ela recusa de novo (todo `/api/usuarios/**`
-  exige `ADMINISTRADOR`). Verificado: um `ATENDENTE` leva 403 no backend mesmo
-  passando por cima do frontend inteiro.
-- `buscarUsuarioDaSessao()` (em `lib/autorizacao.ts`) usa o `cache()` do React:
-  layout, página e action da mesma requisição consultam a API uma vez só.
 
 ## Feedback ao usuário (toast)
 
@@ -360,7 +216,7 @@ toast.warning("...");
 ```
 
 - **O `<Toaster />` fica em `app/layout.tsx`**, uma vez só, valendo para o site
-  e para o painel. É de propósito estar na raiz: o toast **sobrevive à
+  inteiro. É de propósito estar na raiz: o toast **sobrevive à
   navegação client-side**, o que permite avisar "Sessão encerrada" e só então
   redirecionar para o login.
 - **O outro lado disso:** um toast disparado antes de navegar continua na tela
@@ -380,14 +236,13 @@ toast.warning("...");
 - **Título curto, detalhe no `description`.** O título diz o que aconteceu
   ("Não foi possível entrar"); o `description` diz o que fazer.
 - Não repita no toast a mensagem crua da API sem ler: a de login é genérica de
-  propósito (não revela se o e-mail existe). Ver
-  `rafaela-vet-api/docs/autenticacao.md`.
+  propósito (não revela se o e-mail existe).
 
 ## Regras críticas do projeto
 
-1. **O formulário de contato não passa pelo backend.** Existe API
-   (`rafaela-vet-api`), mas ela atende o painel, não o site público. O
-   formulário de contato
+1. **Este projeto não tem backend.** A API `vetplanet-api` existe, mas é do
+   VetPlanet — o produto de gestão, que é outro projeto. Este site **não
+   consome API nenhuma e não deve passar a consumir**. O formulário de contato
    (`app/contato/contato-form.tsx`) valida com Zod + React Hook Form e,
    ao enviar, monta a mensagem e abre o **WhatsApp** (`wa.me`) — não faz
    nenhuma chamada de API. O ponto exato de integração futura está marcado
@@ -448,7 +303,7 @@ zero. O que exigiu ajuste, de fato:
 
 ## Deploy
 
-- **Vercel**, conectada ao GitHub (`chrmartins/rafaela-vet-front`).
+- **Vercel**, conectada ao GitHub (`chrmartins/rafaelasoares-site`).
 - Push em **`main`** → deploy de **produção** automático.
 - Qualquer outra branch / Pull Request → **Preview** com URL própria.
 - Root Directory na Vercel é `./` (app na raiz do repo, sem monorepo).
